@@ -1,16 +1,6 @@
-import { View, Text } from 'react-native'
 import React from 'react'
 import { Tabs,Redirect } from 'expo-router'
 
-// const TabIcon = ({icon, color, name, focused}) => {
-//   return (
-//     <View>
-//       <Image 
-//        source = {}
-//       />
-//     </View>
-//   )
-// }
 
 const TabsLayout = () => {
   return (
@@ -54,13 +44,7 @@ const TabsLayout = () => {
             headerShown: false,
           }}
         />
-        <Tabs.Screen 
-          name="socket"
-          options={{
-            title: 'Socket',
-            headerShown: false,
-          }}
-        />
+        
         <Tabs.Screen 
           name="temperature"
           options={{
@@ -76,7 +60,18 @@ const TabsLayout = () => {
             headerShown: false,
           }}
         />
+
+        <Tabs.Screen 
+            name="consumption"
+            options={{
+              title: 'Consumption',
+              headerShown: false,
+            }}
+        />
+
+        
       </Tabs>
+
     </>
   
   )

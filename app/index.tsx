@@ -1,4 +1,3 @@
-import { StyleSheet } from "react-native";
 import SplashScreen from "./splashScreen";
 import { useEffect, useState } from "react";
 import FirstPage from "./firstPage";

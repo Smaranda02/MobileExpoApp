@@ -7,12 +7,14 @@
         "./*"
       ],
     },
-    "types": ["nativewind/types"]
+    "types": ["nativewind/types"],
+    "strictNullChecks": true
+
   },
   "include": [
     "**/*.ts",
     "**/*.tsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
-, "mqttService.tsx"  ]
+, "services/mqttService.tsx"  ]
 }

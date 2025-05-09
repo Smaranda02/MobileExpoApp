@@ -1,19 +1,25 @@
 import Paho from "paho-mqtt";
 
-const MQTT_SERVER = "ws://192.168.100.92:8080/mqtt"; // Your MQTT broker
+// const MQTT_SERVER = "ws://192.168.100.92:8080/mqtt"; // Your MQTT broker digi
 // const MQTT_SERVER = "ws://192.168.191.78:8080/mqtt"; //smara
+// const MQTT_SERVER = "ws://192.168.2.100:8080/mqtt" // VPN
 
+const MQTT_SERVER = "ws://192.168.1.110:8080/mqtt"; //  MQTT broker foisor
 const MQTT_USERNAME = "admin"; // Your MQTT username
 const MQTT_PASSWORD = "admin"; // Your MQTT password
 
 // Define MQTT topics
-const MQTT_TOPIC_LIVING = "esp32/living";
-const MQTT_TOPIC = "esp32/relay";
-const MQTT_TOPIC_BEDROOM = "esp32/bedroom";
-const MQTT_TOPIC_TEMPERATURE = 'esp32/temperature';
-const MQTT_TOPIC_AIR_QUALITY = 'esp32/airQuality';
-const MQTT_TOPIC_WATER = 'esp32/water';
-
+export const MQTT_TOPIC_LIVING = "esp32/living";
+export const MQTT_TOPIC = "esp32/relay";
+export const MQTT_TOPIC_BEDROOM = "esp32/bedroom";
+export const MQTT_TOPIC_TEMPERATURE = 'esp32/temperature';
+export const MQTT_TOPIC_AIR_QUALITY = 'esp32/airQuality';
+export const MQTT_TOPIC_WATER = 'esp32/water';
+export const MQTT_TOPIC_CONSUMPTION = 'esp32/consumption-esp1'
+export const MQTT_TOPIC_CONSUMPTION_ESP2 = 'esp32/consumption-esp2'
+export const MQTT_TOPIC_SOLAR_PANEL = 'esp32/solar-panel'
+export const MQTT_TOPIC_CURTAINS = 'esp32/curtains'
+export const MQTT_TOPIC_FAN = 'esp32/fan'
 
 type MessageCallback = (topic: string, payload: string) => void;
 
@@ -27,7 +33,7 @@ class MQTTClientSingleton {
   // Private constructor to prevent instantiation
   private constructor() {
     // Initialize the MQTT client immediately upon creation
-    this.mqttClient = new Paho.Client(MQTT_SERVER, `clientId_${Math.random()}`);
+    this.mqttClient = new Paho.Client(MQTT_SERVER, `client-mobileApp`);
 
     // Handle connection loss
     this.mqttClient.onConnectionLost = () => {
@@ -59,6 +65,11 @@ class MQTTClientSingleton {
           this.mqttClient.subscribe(MQTT_TOPIC_TEMPERATURE);
           this.mqttClient.subscribe(MQTT_TOPIC_AIR_QUALITY);
           this.mqttClient.subscribe(MQTT_TOPIC_WATER);
+          this.mqttClient.subscribe(MQTT_TOPIC_CONSUMPTION);
+          this.mqttClient.subscribe(MQTT_TOPIC_CONSUMPTION_ESP2);
+          this.mqttClient.subscribe(MQTT_TOPIC_SOLAR_PANEL);
+          this.mqttClient.subscribe(MQTT_TOPIC_CURTAINS);
+          this.mqttClient.subscribe(MQTT_TOPIC_FAN);
         }
       },
       onFailure: (error) => {

@@ -1,26 +1,29 @@
-import { View, Text, Button, TextInput, StyleSheet, Dimensions, TouchableOpacity, Alert, Platform, Vibration } from 'react-native';
+//TO DO :: it takes as desired temperature the pre last one not the last it is becayuse of the render or smth i dont know the fuck is react doing 
+
+import { View, Text, Button, TextInput, StyleSheet, Dimensions, TouchableOpacity, Alert, Platform, Vibration, ScrollView } from 'react-native';
 import React, { useEffect, useRef, useState } from 'react'
-import { MQTTClientSingleton } from '@/mqttService';
+import { MQTTClientSingleton } from '@/services/mqttService';
+import { useTemperatureStore } from '@/stores/useTemperatureStore';
+import { MQTT_TOPIC_FAN, MQTT_TOPIC_AIR_QUALITY, MQTT_TOPIC_WATER} from '@/services/mqttService';
 
 const AirQuality = () => {
 
   const [connected, setConnected] = useState<boolean>(false);
-  const [currentTemperature, setCurrentTemperature] = useState<number | null>(null);
+  const [currentTemperature, setCurrentTemperature] = useState<number | 22>(0);
   const [currentHumidity, setCurrentHumidity] = useState<number | null>(null);
   const [currentPressure, setCurrentPressure] = useState<number | null>(null);
   const [currentGasResistance, setCurrentGasResistance] = useState<number | null>(null);
   const [aqi, setAqi] = useState<number | null>(null);
   const [humidityTip, setHumidityTip] = useState<string>('');
   const [airQualityTip, setAirQualityTip] = useState<string>('');
+  const {desiredTemperatureFan, fanState, setFan, setDesiredTemperatureFan} = useTemperatureStore();
 
-    const MQTT_TOPIC = 'esp32/airQuality'; // The topic you want to publish to
-    const mqttClient = useRef<MQTTClientSingleton | null>(null); // Use useRef for MQTT client
-    const GAS_THRESHOLD = 50  // Adjust based on environment
-    var smokeWarningDisplayed = false;
-    var waterWarningDisplayed = false;
-    const MQTT_TOPIC_WATER = 'esp32/water'; // The topic you want to publish to
+  const mqttClient = useRef<MQTTClientSingleton | null>(null); // Use useRef for MQTT client
+  const GAS_THRESHOLD = 80  // Adjust based on environment
+  var smokeWarningDisplayed = false;
+  var waterWarningDisplayed = false;
 
-    
+  var initialTemepratureSet = false;
   
   useEffect(() => {
     mqttClient.current = MQTTClientSingleton.getInstance();
@@ -28,12 +31,17 @@ const AirQuality = () => {
 
      // Handle incoming messages
      const messageHandler =  (topic: string, payload: string) => {
-        if (topic === MQTT_TOPIC) {
+        if (topic === MQTT_TOPIC_AIR_QUALITY) {
           const data = JSON.parse(payload); // Deserialize JSON
               setCurrentTemperature(parseFloat(data.temperature));
               setCurrentHumidity(parseFloat(data.humidity));
               setCurrentPressure(parseFloat(data.pressure));
               setCurrentGasResistance(parseFloat(data.gasResistance));
+
+              if(!initialTemepratureSet){
+                setDesiredTemperatureFan(Math.trunc(data.temperature));
+                initialTemepratureSet = true;
+              }
 
               const calculatedAqi = calculateAQI(parseFloat(data.gasResistance), parseFloat(data.humidity));
               setAqi(calculatedAqi);
@@ -84,6 +92,20 @@ const AirQuality = () => {
     return '🚨 Very poor air quality! Improve ventilation immediately!';
   };
 
+  
+  const turnOnOffFan = (fanState: number) => {
+    setFan(fanState);
+  };
+
+  const increaseTemperature = () => {
+      setDesiredTemperatureFan(desiredTemperatureFan + 1);
+  };
+
+  const decreaseTemperature = () => {
+    if (desiredTemperatureFan > 20) {
+      setDesiredTemperatureFan(desiredTemperatureFan - 1);
+    }
+  };
 
   const showSmokeDetectedWarning = () => {
     if (Platform.OS === 'android') {
@@ -128,7 +150,8 @@ const AirQuality = () => {
 
 
   return (
-    <View style={styles.container}>
+      <ScrollView>
+      <View style={styles.container}>
       <Text style={styles.header}>Air Quality</Text>
       <View style={styles.dataContainer}>
         <Text style={styles.label}>🌡️ Temperature: {currentTemperature !== null ? `${currentTemperature} °C` : 'Loading...'}</Text>
@@ -145,7 +168,45 @@ const AirQuality = () => {
         <Text style={styles.tipHeader}>💧 Humidity Tips</Text>
         <Text style={styles.tip}>{humidityTip}</Text>
       </View>
+
+      <View style={styles.section}>
+          <Text style={styles.header}>Fan Control</Text>
+      
+            <TouchableOpacity
+              style={[styles.heaterButton, fanState > 1 ? styles.onButton : styles.offButton]}
+              onPress={() => turnOnOffFan(fanState > 1 ? 1 : 255)}
+            >
+              <Text style={styles.heaterButtonText}>{fanState == 1 ? 'Turn ON' : 'Turn OFF'}</Text>
+            </TouchableOpacity>
+      </View>
+
+      <View style={styles.section}>
+              <Text style={styles.header}>Set Desired Temperature</Text>
+              <View style={styles.buttonContainer}>
+                <TouchableOpacity 
+                style={[styles.button,
+                  desiredTemperatureFan - 1 < 20 && styles.buttonDisabled
+                ]} 
+                onPress={decreaseTemperature}
+                disabled={desiredTemperatureFan - 1 < 20}>
+                  <Text style={styles.buttonText}>-</Text>
+                </TouchableOpacity>
+      
+                <Text style={styles.desiredTemp}>{desiredTemperatureFan}°C</Text>
+      
+                <TouchableOpacity 
+                style={[
+                  styles.button,
+                  desiredTemperatureFan + 1 > Math.trunc(currentTemperature) && styles.buttonDisabled
+                ]} 
+                onPress={increaseTemperature}
+                disabled={desiredTemperatureFan + 1 > Math.trunc(currentTemperature)}>
+                  <Text style={styles.buttonText}>+</Text>
+                </TouchableOpacity>
+              </View>
+        </View>
     </View>
+    </ScrollView>
   );
 };
 
@@ -157,6 +218,63 @@ const styles = StyleSheet.create({
     tipContainer: { backgroundColor: '#e3f2fd', padding: 15, borderRadius: 10, marginTop: 15 },
     tipHeader: { fontSize: 18, fontWeight: 'bold', marginBottom: 5 },
     tip: { fontSize: 16 },
+    heaterButton: {
+      paddingVertical: 15,
+      paddingHorizontal: 40,
+      borderRadius: 25,
+      marginVertical: 10,
+      width: '70%',
+      alignItems: 'center',
+    },
+    heaterButtonText: {
+      color: '#fff',
+      fontSize: 18,
+      fontWeight: 'bold',
+    },
+    onButton: {
+      backgroundColor: '#BDBDBD',
+    },
+    offButton: {
+      backgroundColor: '#4CAF50',
+    },
+    section: {
+      marginBottom: 40,
+      alignItems: 'center',
+    },
+    temperature: {
+      fontSize: 48,
+      color: '#D84315',
+      fontWeight: 'bold',
+    },
+    desiredTemp: {
+      fontSize: 36,
+      color: '#333',
+      fontWeight: 'bold',
+      marginVertical: 20,
+    },
+    buttonContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      width: '60%',
+      marginVertical: 20,
+    },
+    button: {
+      backgroundColor: '#1976D2',
+      paddingVertical: 15,
+      paddingHorizontal: 30,
+      borderRadius: 50,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    buttonText: {
+      color: '#fff',
+      fontSize: 32,
+      fontWeight: 'bold',
+    },
+        
+    buttonDisabled: {
+      backgroundColor: '#B0BEC5', // grayish tone for disabled
+    }
   });
   
 export default AirQuality;

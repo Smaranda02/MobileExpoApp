@@ -4,8 +4,8 @@
     "slug": "stupidHome",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
-    "scheme": "stupidHome",
+    "icon": "./assets/images/react-logo.png",
+    "scheme": "stupid-home",
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true,
@@ -32,7 +32,7 @@
     },
     "plugins": [
       "expo-router",
-      "expo-av",
+      "expo-audio",
       "expo-font"
     ],
     "experiments": {

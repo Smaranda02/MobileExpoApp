@@ -1,30 +1,24 @@
 import { View, Text, Button, TextInput, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import React, { useEffect, useRef, useState } from 'react';
-import { MQTTClientSingleton } from '@/mqttService';
-import AudioService, { SpeechCommands } from '@/audioService';
+import { MQTTClientSingleton } from '@/services/mqttService';
+import { useLedStore } from '@/stores/useLedStore';
+import { useTemperatureStore } from '@/stores/useTemperatureStore';
+import { MQTT_TOPIC_TEMPERATURE } from '@/services/mqttService';
 
 const Temperature = () => {
-  const [desiredTemperature, setDesiredTemperature] = useState(25);
-  const [heaterState, setHeaterState] = useState(0);
-  const [fanState, setFanState] = useState(0);
-  const [connected, setConnected] = useState<boolean>(false);
   const [currentTemperature, setCurrentTemperature] = useState<number | null>(null);
-  const [fanHeaterState, setFanHeaterState] = useState<string>('');
-  const [recording, setRecording] = useState<boolean>(false);
-  const [recordingEntities, setRecordingEntities] = useState("");
+  const {desiredTemperatureHeater, heaterState, fanState, setHeater, setFan, setDesiredTemperatureHeater} = useTemperatureStore();
 
-  const MQTT_TOPIC = 'esp32/temperature';
   const mqttClient = useRef<MQTTClientSingleton | null>(null);
 
   useEffect(() => {
     mqttClient.current = MQTTClientSingleton.getInstance();
-    setConnected(mqttClient.current.isConnected());
 
     const messageHandler = (topic: string, payload: string) => {
-      if (topic === MQTT_TOPIC) {
+      if (topic === MQTT_TOPIC_TEMPERATURE) {
         const temperature = parseFloat(payload);
         setCurrentTemperature(temperature);
-        setFanHeaterState(checkTemperature());
+        // setFanHeaterState(checkTemperature());
       }
     };
 
@@ -35,84 +29,43 @@ const Temperature = () => {
     };
   }, []);
 
+
   const increaseTemperature = () => {
-    setDesiredTemperature((prevTemp) => (prevTemp < 35 ? prevTemp + 1 : prevTemp));
-    publishDesiredTemperature();
+    if (desiredTemperatureHeater < 35) {
+      setDesiredTemperatureHeater(desiredTemperatureHeater + 1);
+    }
   };
 
   const decreaseTemperature = () => {
-    setDesiredTemperature((prevTemp) => (prevTemp > 15 ? prevTemp - 1 : prevTemp));
-  };
-
-  const publishDesiredTemperature = () => {
-    if (mqttClient.current?.isConnected()) {
-      const messageContent = JSON.stringify({ desiredTemperature: desiredTemperature + 1 });
-      mqttClient.current?.publishMessage(MQTT_TOPIC, messageContent);
-      console.log(`Message published: ${messageContent}`);
-    } else {
-      console.log('Not connected to MQTT broker');
+    if (desiredTemperatureHeater > 15) {
+      setDesiredTemperatureHeater(desiredTemperatureHeater - 1);
     }
   };
 
-  const handleInputChange = (value: any) => {
-    const parsedValue = parseInt(value);
-    if (!isNaN(parsedValue)) {
-      setDesiredTemperature(parsedValue);
-    }
-  };
 
-  const turnOnOffHeater = (heaterState: number) => {
-    if (mqttClient.current?.isConnected()) {
-      setHeaterState(heaterState);
-      const message = heaterState ? 'ON' : 'OFF';
-      const messageContent = JSON.stringify({ heaterState: message });
-      mqttClient.current?.publishMessage(MQTT_TOPIC, messageContent);
-      console.log(`Message published: ${messageContent}`);
-    } else {
-      console.log('Not connected to MQTT broker');
-    }
+  const toggleHeater = (newHeaterState: number) => {
+    setHeater(newHeaterState);
   };
 
   
-  const turnOnOffFan = (fanState: number) => {
-    if (mqttClient.current?.isConnected()) {
-      setFanState(fanState);
-      const message = fanState ? 'ON' : 'OFF';
-      const messageContent = JSON.stringify({ fanState: message });
-      mqttClient.current?.publishMessage(MQTT_TOPIC, messageContent);
-      console.log(`Message published: ${messageContent}`);
-    } else {
-      console.log('Not connected to MQTT broker');
-    }
-  };
+  // const checkTemperature = () => {
+  //   if (currentTemperature) {
+  //     if (desiredTemperatureHeater - currentTemperature >= 1) return 'Turning OFF the Heater';
+  //     if (currentTemperature - desiredTemperatureHeater >= 4) return 'It\'s too hot. Turning ON the FAN';
+  //     return 'Turn off';
+  //   }
+  //   return 'Turn off';
+  // };
 
-  const checkTemperature = () => {
-    if (currentTemperature) {
-      if (desiredTemperature - currentTemperature >= 1) return 'Turning OFF the Heater';
-      if (currentTemperature - desiredTemperature >= 4) return 'It\'s too hot. Turning ON the FAN';
-      return 'Turn off';
-    }
-    return 'Turn off';
-  };
-
-   const handleStartRecording = async () => {
-      setRecording(true);
-      await AudioService.startRecording();
-    };
-  
-    const handleStopRecording = async () => {
-      setRecording(false);
-      await AudioService.stopRecording();
-      setRecordingEntities(AudioService.getEntities())
-      processTranscription(recordingEntities);
-
-    };
 
     
     const processTranscription = (result_entities: any) => {
       try {
           // const jsonData: SpeechCommands[] = JSON.parse(result_entities);
+          console.log("PArsing ... ")
+          // console.log("Recording entities: ",recordingEntities)
           var jsonData = JSON.parse(result_entities);
+          console.log("json data is : ", jsonData)
 
           for (const data of jsonData) {
             const topic = `esp32/${data.location}`;
@@ -123,25 +76,24 @@ const Temperature = () => {
             // Implement your command handling logic here
             if (command?.includes("off") || command?.includes("down") || command?.includes("minimum")) {
               if(device == "AC"){
-                turnOnOffFan(0);
+                //turnOnOffFan(0);
               }
               if(device == "heater"){
-                turnOnOffHeater(0);
+                toggleHeater(0);
               }
             } 
             
             if (command?.includes("on") || command?.includes("up") || command?.includes("maximum")) {
               if(device == "AC"){
-                turnOnOffFan(255);
+                //turnOnOffFan(255);
               }
               if(device == "heater"){
-                turnOnOffHeater(255);
+                toggleHeater(255);
               }
             }
             
             if(value){
-              setDesiredTemperature(value);
-              publishDesiredTemperature();
+              setDesiredTemperatureHeater(value);
             }
               
           }
@@ -158,19 +110,10 @@ const Temperature = () => {
       <Text style={styles.header}>Heater Control</Text>
 
       <TouchableOpacity
-        style={[styles.heaterButton, heaterState ? styles.onButton : styles.offButton]}
-        onPress={() => turnOnOffHeater(heaterState ? 0 : 255)}
+        style={[styles.heaterButton, heaterState  == 1 ? styles.onButton : styles.offButton]}
+        onPress={() => toggleHeater(heaterState > 1 ? 1 : 255)}
       >
-        <Text style={styles.heaterButtonText}>{heaterState ? 'Turn OFF' : 'Turn ON'}</Text>
-      </TouchableOpacity>
-
-      <Text style={styles.header}>Fan Control</Text>
-
-      <TouchableOpacity
-        style={[styles.heaterButton, fanState ? styles.onButton : styles.offButton]}
-        onPress={() => turnOnOffFan(fanState ? 0 : 255)}
-      >
-        <Text style={styles.heaterButtonText}>{fanState ? 'Turn OFF' : 'Turn ON'}</Text>
+        <Text style={styles.heaterButtonText}>{heaterState == 1 ? 'Turn ON' : 'Turn OFF'}</Text>
       </TouchableOpacity>
 
       <View style={styles.section}>
@@ -185,25 +128,15 @@ const Temperature = () => {
             <Text style={styles.buttonText}>-</Text>
           </TouchableOpacity>
 
-          <Text style={styles.desiredTemp}>{desiredTemperature}°C</Text>
+          <Text style={styles.desiredTemp}>{desiredTemperatureHeater}°C</Text>
 
           <TouchableOpacity style={styles.button} onPress={increaseTemperature}>
             <Text style={styles.buttonText}>+</Text>
           </TouchableOpacity>
         </View>
 
-        <View style={styles.stateContainer}>
-          <Text style={styles.stateHeader}>Fan / Heater State</Text>
-          <Text style={styles.stateText}>{fanHeaterState}</Text>
-        </View>
       </View>
-
-      <View style={styles.container}>
-            <Button
-              title={recording ? 'Stop Recording' : 'Start Recording'}
-              onPress={recording ? handleStopRecording : handleStartRecording}
-            />      
-      </View>
+     
     </View>
     </ScrollView>
   );

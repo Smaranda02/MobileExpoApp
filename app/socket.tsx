@@ -1,9 +1,8 @@
 import { View, Text, Button, TextInput, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
 import React, { useEffect, useRef, useState } from 'react'
 import { LineChart } from "react-native-chart-kit";
-import Paho from 'paho-mqtt';
 
-import { MQTTClientSingleton } from '@/mqttService';
+import { MQTTClientSingleton } from '@/services/mqttService';
 
 const Socket = () => {
 

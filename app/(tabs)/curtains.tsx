@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React from "react";
 import {
   View,
   Text,
@@ -6,118 +6,30 @@ import {
   TouchableOpacity,
   Button,
 } from "react-native";
-import { MQTTClientSingleton } from '@/mqttService';
-import AudioService from "@/audioService";
 
-const MQTT_TOPIC = "esp32/curtains"; // The topic you want to publish to
+import { useCurtainsStore } from "@/stores/useCurtainsStore";
 
 const Curtains = () => {
-  const [curtainsState, setCurtainsState] = useState(0);
-  const [connected, setConnected] = useState<boolean>(false);
-  const [recording, setRecording] = useState<boolean>(false);
-  const [recordingEntities, setRecordingEntities] = useState("");
+  const { curtainsState, setCurtainsState } = useCurtainsStore();
 
-  const mqttClient = useRef<MQTTClientSingleton | null>(null); // Use useRef for MQTT client
-
-
-  useEffect(() => {
-    mqttClient.current = MQTTClientSingleton.getInstance();
-
-    setConnected(mqttClient.current.isConnected());
-
-    return () => {
-      mqttClient.current?.disconnect(); // Disconnect on component unmount
-    };
-  }, []);
-
-
-  const handleCurtainsStatePublish = (curtainsCommand?: number) => {
-    if (mqttClient.current?.isConnected()) {
-
-      setCurtainsState(prevState => {
-        const newState = curtainsCommand ?? (prevState ? 0 : 255);
-        const message = newState ? "UP" : "DOWN"; 
-        console.log("Message:", message);
-        const messageContent = JSON.stringify({ curtainsState : message});
-        mqttClient.current?.publishMessage(MQTT_TOPIC, messageContent);
-        console.log(`Message published: ${messageContent}`);
-        return newState;
-      });
-    
-    } else {
-      console.log("Not connected to MQTT broker");
-    }
+  const handleCurtainsStatePublish = (curtainsCommand: number) => {
+      setCurtainsState(curtainsCommand);
   };
-
-
-  
-  const processTranscription = (result_entities: any) => {
-    try {
-
-      var jsonData = JSON.parse(result_entities);
-      console.log("Json data : ", JSON.parse(result_entities))
-      
-      for (const data of jsonData) {
-        const topic = `esp32/${data.location}`;
-        const command = data.action;
-
-        // Implement your command handling logic here
-        if (command?.includes("off") || command?.includes("down") || command?.includes("minimum")) {
-          handleCurtainsStatePublish(0);
-        } else if (command?.includes("on") || command?.includes("up") || command?.includes("maximum")) {
-          handleCurtainsStatePublish(255);
-        }
-
-      }
-    } catch (error) {
-      console.error("Failed to process transcription:", error);
-    }
-  }
-
-
-   const handleStartRecording = async () => {
-      setRecording(true);
-      await AudioService.startRecording();
-    };
-  
-    const handleStopRecording = async () => {
-      setRecording(false);
-      await AudioService.stopRecording();
-      var resultEntities = AudioService.getEntities();
-      setRecordingEntities(resultEntities)
-      processTranscription(resultEntities);
-    };
-    
-
 
   return (
     <View>
       <View style={styles.container}>
-        <Text style={styles.status}>
-          {connected
-            ? "Connected to MQTT broker"
-            : "Connecting to MQTT broker..."}
-        </Text>
 
         <TouchableOpacity
           style={[
             styles.button,
             curtainsState ? styles.offButton : styles.onButton,
           ]}
-          onPress={() => handleCurtainsStatePublish()}
+          onPress={() => handleCurtainsStatePublish(curtainsState ? 0 : 255)}
         >
           <Text style={styles.buttonText}>{curtainsState ? "CURTAINS DOWN" : "CURTAINS UP"}</Text>
         </TouchableOpacity>
       </View>
-
-
-    <View style={styles.container}>
-      <Button
-        title={recording ? 'Stop Recording' : 'Start Recording'}
-        onPress={recording ? handleStopRecording : handleStartRecording}
-      />      
-    </View>
-
       
     </View>
   );
