@@ -78,7 +78,7 @@ export const MQTTPublisher = {
       }
       
       const messageContent = JSON.stringify({ desiredTemperature: desiredTemperature});
-      mqttClient.publishMessage(MQTT_TOPIC_FAN, messageContent);
+      mqttClient.publishMessage("esp32/airQuality", messageContent);
     },
 
     publishHeaterState(heaterState: number){

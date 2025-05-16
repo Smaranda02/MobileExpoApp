@@ -19,7 +19,7 @@ const AirQuality = () => {
   const {desiredTemperatureFan, fanState, setFan, setDesiredTemperatureFan} = useTemperatureStore();
 
   const mqttClient = useRef<MQTTClientSingleton | null>(null); // Use useRef for MQTT client
-  const GAS_THRESHOLD = 80  // Adjust based on environment
+  const GAS_THRESHOLD = 100  // Adjust based on environment
   var smokeWarningDisplayed = false;
   var waterWarningDisplayed = false;
 
@@ -47,7 +47,7 @@ const AirQuality = () => {
               setAqi(calculatedAqi);
               setHumidityTip(getHumidityTip(parseFloat(data.humidity)));
               setAirQualityTip(getAirQualityTip(calculatedAqi));
-
+              
               if (currentGasResistance && currentGasResistance < GAS_THRESHOLD) {
                 if(smokeWarningDisplayed == false){
                   showSmokeDetectedWarning();
@@ -184,7 +184,7 @@ const AirQuality = () => {
               <Text style={styles.header}>Set Desired Temperature</Text>
               <View style={styles.buttonContainer}>
                 <TouchableOpacity 
-                style={[styles.button,
+                style={[styles.tempButton,
                   desiredTemperatureFan - 1 < 20 && styles.buttonDisabled
                 ]} 
                 onPress={decreaseTemperature}
@@ -196,7 +196,7 @@ const AirQuality = () => {
       
                 <TouchableOpacity 
                 style={[
-                  styles.button,
+                  styles.tempButton,
                   desiredTemperatureFan + 1 > Math.trunc(currentTemperature) && styles.buttonDisabled
                 ]} 
                 onPress={increaseTemperature}
@@ -250,7 +250,9 @@ const styles = StyleSheet.create({
       fontSize: 36,
       color: '#333',
       fontWeight: 'bold',
-      marginVertical: 20,
+      marginVertical: 5,
+      marginRight: 10,
+      marginLeft: 10
     },
     buttonContainer: {
       flexDirection: 'row',
@@ -262,7 +264,7 @@ const styles = StyleSheet.create({
       backgroundColor: '#1976D2',
       paddingVertical: 15,
       paddingHorizontal: 30,
-      borderRadius: 50,
+      borderRadius: 30,
       justifyContent: 'center',
       alignItems: 'center',
     },
@@ -271,7 +273,17 @@ const styles = StyleSheet.create({
       fontSize: 32,
       fontWeight: 'bold',
     },
-        
+    
+    tempButton: {
+      backgroundColor: '#1976d2',
+      width: 60,
+      height: 60,
+      borderRadius: 30,
+      alignItems: 'center',
+      justifyContent: 'center',
+      elevation: 4,
+    },
+
     buttonDisabled: {
       backgroundColor: '#B0BEC5', // grayish tone for disabled
     }

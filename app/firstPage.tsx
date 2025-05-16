@@ -7,6 +7,7 @@ import { useAudioRecorder, RecordingPresets, AudioModule } from "expo-audio";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import VoiceProcessingService from "@/services/voiceProcessingService";
 import { useAudioService } from "@/services/audioService";
+import { PRIMARY_COLOR,SECONDARY_COLOR,DARKER_PRIMARY} from "@/constants";
 
 export default function FirstPage() {
   const [recording, setRecording] = useState<boolean>(false);
@@ -97,6 +98,7 @@ export default function FirstPage() {
             <Link href="/socket" style={styles.link}>Smart Socket Control</Link>
             <Link href="/curtains" style={styles.link}>Curtains Control</Link>
             <Link href="/airQuality" style={styles.link}>Air Quality</Link>
+            <Link href="/consumption" style={styles.link}>Consumption</Link>
           </View>
   
           <CustomButton
@@ -110,7 +112,7 @@ export default function FirstPage() {
 
            <View style={styles.container}>
                 <TouchableOpacity
-                  style={[styles.micButton, styles.recordingButton  && styles.recordingButton]}
+                  style={[styles.micButton, recorder.isRecording  && styles.recordingButton]}
                   onPress={handleMicPress}
                 >
                   {recorder.isRecording ? (
@@ -119,6 +121,10 @@ export default function FirstPage() {
                     <MaterialCommunityIcons name="microphone" size={40} color="#ffffff" />
                   )}
                 </TouchableOpacity>
+
+                <Text style={styles.label}>
+                    {recorder.isRecording ? "Listening..." : "Tap to Speak"}
+                </Text>
           
           </View> 
           
@@ -174,7 +180,7 @@ export default function FirstPage() {
       width: 70,
       height: 70,
       borderRadius: 35,
-      backgroundColor: "#ff4081",
+      backgroundColor: PRIMARY_COLOR,
       alignItems: "center",
       justifyContent: "center",
       marginTop: 10,
@@ -182,5 +188,12 @@ export default function FirstPage() {
     },
     recordingButton: {
       backgroundColor: "#d50000",
+    },
+    label: {
+      fontSize: 16,
+      fontWeight: "500",
+      color: "#1E1E1E",
+      marginVertical: 8,
+      textAlign: "center"
     },
   });

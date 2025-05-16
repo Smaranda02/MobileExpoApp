@@ -312,6 +312,8 @@
 import { useEffect, useState } from 'react';
 import { Alert } from 'react-native';
 import * as FileSystem from 'expo-file-system';
+import { SERVER_IP } from './mqttService';
+
 import {
   useAudioRecorder,
   AudioModule,
@@ -327,7 +329,7 @@ export interface SpeechCommands {
   color?: string;
 }
 
-const SERVER_URL = 'http://192.168.1.105:8000/transcribe'; // foisorului wifi
+const SERVER_URL = `http://${SERVER_IP}:8000/transcribe`; // foisorului wifi
 
 export function useAudioService() {
   const recorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);

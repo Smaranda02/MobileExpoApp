@@ -1,6 +1,6 @@
 import Paho from "paho-mqtt";
+import { SERVER_IP } from "@/constants";
 
-// const MQTT_SERVER = "ws://192.168.100.92:8080/mqtt"; // Your MQTT broker digi
 // const MQTT_SERVER = "ws://192.168.191.78:8080/mqtt"; //smara
 // const MQTT_SERVER = "ws://192.168.2.100:8080/mqtt" // VPN
 
