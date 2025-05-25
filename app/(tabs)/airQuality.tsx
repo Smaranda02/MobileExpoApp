@@ -56,7 +56,7 @@ const AirQuality = () => {
         }
 
           if(topic === MQTT_TOPIC_WATER){
-            console.log(payload);
+            // console.log(payload);
             if(parseFloat(payload) > MIN_WATER_THRESHOLD && waterWarningDisplayed == false){
               showWaterWarning();
               waterWarningDisplayed = true;

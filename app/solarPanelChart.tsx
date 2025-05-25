@@ -152,7 +152,7 @@ export default function SolarPanelChart() {
                   showValuesOnTopOfBars
                   chartConfig={chartConfig}
                   style={styles.chart}
-                  yAxisSuffix=" W"
+                  yAxisSuffix=" mW"
                   yAxisLabel=""
                 />
               </View>
@@ -190,19 +190,7 @@ const styles = StyleSheet.create({
   chart: {
     borderRadius: 12
   },
-  // xAxisLabelContainer: {
-  //   alignItems: "center",
-  //   // marginTop: 100,
-  //   // width: "100%",
-  // },
-  // xAxisLabel: {
-  //   fontSize: 30,
-  //   fontWeight: "600",
-  //   // left:100
-  //   // marginBottom:100
-  //   // ,
-  //   alignItems:"center"
-  // },
+
   noData: {
     textAlign: "center",
     marginTop: 20,

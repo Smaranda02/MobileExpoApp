@@ -3,7 +3,7 @@ import { Picker } from "@react-native-picker/picker";
 import React, { useEffect, useRef, useState } from 'react';
 import { MQTTClientSingleton } from '@/services/mqttService';
 import ConsumptionChart from '../consumptionCharts';
-import { SERVER_IP } from '@/constants';
+import { SERVER_IP, VALUES_ERROR_MARGIN } from '@/constants';
 import { getDate } from 'date-fns';
 import SolarPanelChart from '../solarPanelChart';
 
@@ -21,7 +21,9 @@ const Consumption = () => {
   const MQTT_TOPIC_ESP2 = 'esp32/consumption-esp2';
   const MQTT_TOPIC_SOLAR_PANEL = 'esp32/solar-panel';
 
-  let powerHourArray : number []=  [];
+  let powerHourArray = useRef<number[]>([]);
+
+  // let powerHourArray : number []=  [];
   let lastHourRead = Date.now();
 
   const mqttClient = useRef<MQTTClientSingleton | null>(null);
@@ -56,7 +58,7 @@ const Consumption = () => {
   };
 
   const handleSolarPanelPower = async (power: number) => {
-    powerHourArray.push(power);
+    powerHourArray.current.push(power);
     console.log("received power: ", power);
     console.log("array: ", powerHourArray);
 
@@ -66,14 +68,14 @@ const Consumption = () => {
     // if (now - lastHourRead >= oneHour) {
     if (now - lastHourRead >= 60 * 1000) {
 
-      const sum = powerHourArray.reduce((acc, val) => acc + val, 0);
-      const averagePower = Math.round((sum / powerHourArray.length) * 100) / 100;
+      const sum = powerHourArray.current.reduce((acc, val) => acc + val, 0);
+      const averagePower = Math.round((sum / powerHourArray.current.length) * 100) / 100;
 
       const currentHour = new Date().getHours(); // 0-23
       const timestamp = new Date().toISOString(); // Full ISO timestamp
       postHourAverage(averagePower, timestamp, currentHour);
 
-      powerHourArray = [];
+      powerHourArray.current = [];
       lastHourRead = now;
   
       console.log(`✅ Posted average power: ${averagePower.toFixed(2)} W at hour ${currentHour}`);
@@ -129,7 +131,7 @@ const Consumption = () => {
       if (topic !== targetTopic) return; // Ignore other topics
     
       const data = JSON.parse(payload);
-      // console.log("Payload: ", payload);
+      console.log("Payload: ", payload, selectedESPRef.current);
       const current = parseFloat(data.current);
       //received each minute
 
@@ -156,7 +158,7 @@ const Consumption = () => {
 
         // console.log("Current min form store: ", min_current);
 
-        if(min_current != null && current < min_current + 50) { //we cut off the spikes from being seen in the interface
+        if(min_current != null && current < min_current + VALUES_ERROR_MARGIN) { //we cut off the spikes from being seen in the interface
           setCurrentShuntVoltage(parseFloat(data.shuntVoltage));
           setCurrentBusVoltage(parseFloat(data.busVoltage));
           setCurrentCurrent(parseFloat(data.current));
@@ -164,15 +166,16 @@ const Consumption = () => {
           setCurrentLoadVoltage(parseFloat(data.loadVoltage));
           // console.log(parseFloat(data.current));
         }
+
+        sendToBackend(selectedESPRef.current, current);
+
       }
 
       else {
         //solar panel
         const power = parseFloat(data.power);
-        // handleSolarPanelPower(power);
-      }
-   
-      sendToBackend(selectedESPRef.current, current);
+        handleSolarPanelPower(power);
+      } 
 
     };
    
@@ -201,7 +204,7 @@ const Consumption = () => {
         style={styles.picker}
       >
         <Picker.Item label="ESP1" value="ESP1" />
-        <Picker.Item label="ESP2" value="ESP2" />
+        <Picker.Item label="ESP2" value="ESP2" /> 
         <Picker.Item label="Solar Panel" value="Solar Panel" />
       </Picker>
 
@@ -226,8 +229,7 @@ const Consumption = () => {
       {selectedESP == 'Solar Panel' ?  
       <SolarPanelChart/> :
       <ConsumptionChart device={selectedESP} />
-      }
-     
+      }  
 
       </View>
     </ScrollView>

@@ -4,9 +4,8 @@ export const SECONDARY_COLOR = "#90CAF9";
 export const DARKER_PRIMARY = "#1565C0";
 
 // export const SERVER_IP = "192.168.1.100";
-export const SERVER_IP = "192.168.27.206";
-
-
+// export const SERVER_IP = "192.168.27.206";
+export const SERVER_IP = "192.168.1.100"; //robotics314
 
 export const LAT = 44.4268;  // Bucharest latitude
 export const LNG = 26.1025;  // Bucharest longitude
@@ -18,6 +17,9 @@ export const MIN_FAN_TEMP = 20;
 export const MAX_FAN_TEMP = 20;
 
 export const MIN_WATER_THRESHOLD  = 2.5;
+
+
+export const VALUES_ERROR_MARGIN = 100;
 
 // export const MQTT_SERVER = "ws://192.168.191.78:8080/mqtt"; //smara
 export const MQTT_SERVER = "ws://192.168.1.104:8080/mqtt"; //robotics314
