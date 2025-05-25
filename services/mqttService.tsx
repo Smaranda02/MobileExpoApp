@@ -1,25 +1,8 @@
 import Paho from "paho-mqtt";
-import { SERVER_IP } from "@/constants";
+import { MQTT_PASSWORD, MQTT_SERVER, MQTT_TOPIC, MQTT_TOPIC_AIR_QUALITY, MQTT_TOPIC_BEDROOM, MQTT_TOPIC_CONSUMPTION, MQTT_TOPIC_CONSUMPTION_ESP2, MQTT_TOPIC_CURTAINS, MQTT_TOPIC_FAN, MQTT_TOPIC_LIVING, MQTT_TOPIC_SOLAR_PANEL, MQTT_TOPIC_TEMPERATURE, MQTT_TOPIC_WATER, MQTT_USERNAME, SERVER_IP } from "@/constants";
+import { Platform } from "react-native";
+import { useMqttStore } from "@/stores/useMqttStore";
 
-// const MQTT_SERVER = "ws://192.168.191.78:8080/mqtt"; //smara
-// const MQTT_SERVER = "ws://192.168.2.100:8080/mqtt" // VPN
-
-const MQTT_SERVER = "ws://192.168.1.110:8080/mqtt"; //  MQTT broker foisor
-const MQTT_USERNAME = "admin"; // Your MQTT username
-const MQTT_PASSWORD = "admin"; // Your MQTT password
-
-// Define MQTT topics
-export const MQTT_TOPIC_LIVING = "esp32/living";
-export const MQTT_TOPIC = "esp32/relay";
-export const MQTT_TOPIC_BEDROOM = "esp32/bedroom";
-export const MQTT_TOPIC_TEMPERATURE = 'esp32/temperature';
-export const MQTT_TOPIC_AIR_QUALITY = 'esp32/airQuality';
-export const MQTT_TOPIC_WATER = 'esp32/water';
-export const MQTT_TOPIC_CONSUMPTION = 'esp32/consumption-esp1'
-export const MQTT_TOPIC_CONSUMPTION_ESP2 = 'esp32/consumption-esp2'
-export const MQTT_TOPIC_SOLAR_PANEL = 'esp32/solar-panel'
-export const MQTT_TOPIC_CURTAINS = 'esp32/curtains'
-export const MQTT_TOPIC_FAN = 'esp32/fan'
 
 type MessageCallback = (topic: string, payload: string) => void;
 
@@ -33,7 +16,12 @@ class MQTTClientSingleton {
   // Private constructor to prevent instantiation
   private constructor() {
     // Initialize the MQTT client immediately upon creation
+
     this.mqttClient = new Paho.Client(MQTT_SERVER, `client-mobileApp`);
+    // this.mqttClient = new Paho.Client("192.168.191.78", 8080, `client-mobileApp`);
+    // this.mqttClient = new Paho.Client("192.168.191.78", 8080, '/mqtt', "clinet-mobile")
+    // this.mqttClient = new Paho.Client("192.168.191.78", 8080, "1")
+
 
     // Handle connection loss
     this.mqttClient.onConnectionLost = () => {
@@ -49,6 +37,7 @@ class MQTTClientSingleton {
   }
 
   private connect(){
+    // console.log("The mqtt: ", this.mqttClient);
     if (!this.mqttClient) return;
     console.log("Attempting to connect to MQTT broker...");
 
@@ -57,6 +46,8 @@ class MQTTClientSingleton {
       password: MQTT_PASSWORD,
       onSuccess: () => {
         console.log("Connected to MQTT Broker");
+        useMqttStore.getState().setMqttState(true);
+
         this.connected = true;
         if (this.mqttClient) {
           this.mqttClient.subscribe(MQTT_TOPIC_LIVING);
@@ -75,6 +66,7 @@ class MQTTClientSingleton {
       onFailure: (error) => {
         console.error("Connection failed:", error);
         this.connected = false;
+        useMqttStore.getState().setMqttState(false);
         this.reconnect();
       },
     });
@@ -85,7 +77,7 @@ class MQTTClientSingleton {
     console.log(`Reconnecting in 1 second...`);
     setTimeout(() => {
       this.connect();
-    }, 1);
+    }, 1000);
   }
 
   // Singleton instance getter

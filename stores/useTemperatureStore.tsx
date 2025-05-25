@@ -1,5 +1,6 @@
 import { MQTTPublisher } from "@/services/mqttPublisher";
 import { create } from "zustand";
+import { MIN_FAN_TEMP,MIN_HEATER_TEMP } from "@/constants";
 
 type TemperatureState = {
   desiredTemperatureHeater: number;
@@ -14,8 +15,8 @@ type TemperatureState = {
 
 
 export const useTemperatureStore = create<TemperatureState>((set, get) => ({
-    desiredTemperatureHeater: 22,
-    desiredTemperatureFan: 22,
+    desiredTemperatureHeater: MIN_HEATER_TEMP,
+    desiredTemperatureFan: MIN_FAN_TEMP,
     heaterState: 1,
     fanState: 1,
 

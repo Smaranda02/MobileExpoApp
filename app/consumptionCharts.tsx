@@ -241,6 +241,7 @@ export default function ConsumptionChart({ device }: ConsumptionChartProps) {
               bezier
               style={styles.chart}
               fromZero
+              
             />
           </ScrollView>
           <Text style={styles.xAxisLabel}>Date</Text>

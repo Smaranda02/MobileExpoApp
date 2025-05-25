@@ -49,19 +49,19 @@ export default function SolarPanelChart() {
       const response = await fetch(solar_panel_url);
       const json = await response.json();
 
-      console.log(json);
+      // console.log(json);
       //   const values = json.map((d: any) => (d.power) / 1000);
       const values = json.map((d: any) => d.power);
 
       // const xLabels = json.map((d: any) => d.readingDate.slice(5)); // MM-DD
-      const xLabels = json.map((d: any) => {
-        if (range === "day") {
-          return d.timestamp; // "13:00", "14:00"
-        } else {
-          return format(parseISO(d.readingDate), "MMM d"); // "May 14"
-        }
-      });
-
+     const xLabels = json.map((d: any, index: number) => {
+      if (range === "day") {
+        const hour = String(index + 1).padStart(2, '0');
+        return `${hour}:00 `;
+      } else {
+        return format(parseISO(d.readingDate), "MMM d"); // "May 14"
+      }
+    });
       console.log("Labels: ", xLabels);
       setData(values);
       setLabels(xLabels);
@@ -131,12 +131,13 @@ export default function SolarPanelChart() {
           //   <Text style={styles.xAxisLabel}>{range === 'day' ? "Hour" : "Date"}</Text>
           // </View>
           <View>
-            <View style={styles.fixedYAxisLabel}>
+
+            {/* <View style={styles.fixedYAxisLabel}>
               <Text style={styles.yAxisLabel}>Power (W)</Text>
-            </View>
+            </View> */}
 
             <ScrollView horizontal>
-              <View style={{ paddingLeft: 40, alignItems: "center" }}>
+              <View >
                 <BarChart
                   data={{
                     labels:
@@ -145,28 +146,32 @@ export default function SolarPanelChart() {
                         : labels.filter((_, index) => index % 5 === 0),
                     datasets: [{ data }],
                   }}
-                  width={Math.max(data.length * 40, screenWidth)}
+                  width={Math.max(data.length * 60, screenWidth)}
                   height={260}
                   fromZero
                   showValuesOnTopOfBars
                   chartConfig={chartConfig}
                   style={styles.chart}
-                  yAxisSuffix=""
+                  yAxisSuffix=" W"
                   yAxisLabel=""
                 />
               </View>
             </ScrollView>
+              
 
-             <View style={styles.xFixedLabel}>
-                <Text style={styles.xAxisLabel}>
-                  {range === "day" ? "Hour" : "Date"}
-                </Text>
-              </View>
-          </View>
+           {/* <View style={styles.xAxisLabelContainer}>
+              <Text style={styles.xAxisLabel}>
+                {range === "day" ? "Hour" : "Date"}
+              </Text>
+            </View> */}
+
+        </View>
+
         ) : (
           <Text style={styles.noData}>No data to display</Text>
         )}
       </View>
+      
     </ScrollView>
   );
 }
@@ -175,8 +180,7 @@ const styles = StyleSheet.create({
   chartWrapper: {
     marginTop: 30,
     alignItems: "center",
-    paddingHorizontal: 20,
-    // height: 300
+    paddingHorizontal: 10,
   },
   chartTitle: {
     fontSize: 20,
@@ -184,25 +188,21 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   chart: {
-    borderRadius: 12,
+    borderRadius: 12
   },
- xFixedLabel: {
-    width: 70, // adjust as needed
-    alignItems: "center",
-    zIndex: 2,
-    right: 100,
-    left: 100,
-    marginTop: 0,
-  },
-
-  xAxisLabel: {
-    // textAlign: "center",
-    fontSize: 50,
-    fontWeight: "600",
-    // left: 100
-  },
-   
-
+  // xAxisLabelContainer: {
+  //   alignItems: "center",
+  //   // marginTop: 100,
+  //   // width: "100%",
+  // },
+  // xAxisLabel: {
+  //   fontSize: 30,
+  //   fontWeight: "600",
+  //   // left:100
+  //   // marginBottom:100
+  //   // ,
+  //   alignItems:"center"
+  // },
   noData: {
     textAlign: "center",
     marginTop: 20,
@@ -233,14 +233,6 @@ const styles = StyleSheet.create({
   rangeButtonTextSelected: {
     color: "#ffffff",
   },
-
-  yAxisWrapper: {
-    position: "absolute",
-    left: -40,
-    top: 100,
-    zIndex: 1,
-  },
-
   yAxisLabel: {
     transform: [{ rotate: "-90deg" }],
     fontSize: 14,
@@ -248,13 +240,11 @@ const styles = StyleSheet.create({
     color: "#333",
   },
   fixedYAxisLabel: {
-    width: 70, // adjust as needed
+    width: 70,
     alignItems: "center",
-    left: -50,
+    left: -40,
     top: 140,
     zIndex: 1,
   },
 });
-
-
 

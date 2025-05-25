@@ -11,7 +11,8 @@ import {
   ScrollView,
   Platform,
 } from "react-native";
-import Slider from "@react-native-community/slider";
+// import Slider from "@react-native-community/slider";
+// import Slider  from 'react-native-awesome-slider';
 import { Picker } from "@react-native-picker/picker";
 import { MQTTClientSingleton } from '@/services/mqttService';
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -20,13 +21,21 @@ import { useLedStore } from "@/stores/useLedStore";
 import { Room } from "@/stores/useLedStore";
 import { useAudioService } from "@/services/audioService";
 import { PRIMARY_COLOR,SECONDARY_COLOR,DARKER_PRIMARY} from "@/constants";
+import { useSharedValue } from "react-native-reanimated";
+let Slider;
+
+if (Platform.OS === 'web') {
+  Slider = require('react-native-awesome-slider').Slider; // NOT `.Slider`
+} else {
+  Slider = require('@react-native-community/slider').default; // Use `.default` here
+}
 
 
 const LedControl = () => {
 
-  const [connected, setConnected] = useState<boolean>(false);
   const { red, green, blue, brightness, redBedroom, greenBedroom, blueBedroom, selectedRoom, setColor, setRoom } = useLedStore();
-  
+  const progress = useSharedValue(50);
+
   const {
       recorder,
       startRecording,
@@ -289,9 +298,6 @@ const LedControl = () => {
 return (
   <ScrollView contentContainerStyle={styles.scrollContainer}>
     <View style={styles.card}>
-      <Text style={styles.status}>
-        {connected ? "✅ Connected" : "🔄 Connecting..."}
-      </Text>
 
       <TouchableOpacity
         style={[
@@ -319,24 +325,40 @@ return (
     </View>
 
     <View style={styles.card}>
-      <Text style={styles.label}>Red: {selectedRoom == 'living' ? red : redBedroom}</Text>
-      {
-      Platform.OS !== 'web' ? 
-      <Slider
+      <Text style={styles.label}>Red: 
+        {selectedRoom == 'living' ? red : redBedroom}
+        </Text>
+      
+
+
+      {Platform.OS === 'web' ? (
+        <Slider
+          progress={selectedRoom == 'living' ? red : redBedroom}
+          onValueChange={(value: any) =>
+            selectedRoom === 'living'
+              ? setColor(Math.round(value), green, blue, brightness)
+              : setColor(Math.round(value), greenBedroom, blueBedroom, brightness)
+          }
+          minimumValue={0}
+          maximumValue={255}
+          steps={5}
+          snapToStep={true}
+        />
+      ) : (
+        <Slider
         minimumValue={0}
         maximumValue={255}
         value={selectedRoom == 'living' ? red : redBedroom}
-        onValueChange={(value) =>
+        onValueChange={(value: any) =>
           selectedRoom === 'living'
             ? setColor(Math.round(value), green, blue, brightness)
             : setColor(Math.round(value), greenBedroom, blueBedroom, brightness)
         }
         step={55}
         minimumTrackTintColor="#EF5350"
-      />
-      :
-      "Hello"
-      }
+        />
+      )}
+
 
       <Text style={styles.label}>Green: {selectedRoom == 'living' ? green : greenBedroom}</Text>
       { Platform.OS !== 'web' ? 
@@ -344,7 +366,7 @@ return (
         minimumValue={0}
         maximumValue={255}
         value={selectedRoom == 'living' ? green : greenBedroom}
-        onValueChange={(value) =>
+        onValueChange={(value: any) =>
           selectedRoom === 'living'
             ? setColor(red, Math.round(value), blue, brightness)
             : setColor(redBedroom, Math.round(value), blueBedroom, brightness)
@@ -353,7 +375,7 @@ return (
         minimumTrackTintColor="#66BB6A"
       /> 
       :
-      "Hello"
+      <Text>Hello</Text>
       }
 
       <Text style={styles.label}>Blue: {selectedRoom == 'living' ? blue : blueBedroom}</Text>
@@ -362,7 +384,7 @@ return (
         minimumValue={0}
         maximumValue={255}
         value={selectedRoom == 'living' ? blue : blueBedroom}
-        onValueChange={(value) =>
+        onValueChange={(value: any) =>
           selectedRoom === 'living'
             ? setColor(red, green, Math.round(value), brightness)
             : setColor(redBedroom, greenBedroom, Math.round(value), brightness)
@@ -370,7 +392,7 @@ return (
         step={55}
         minimumTrackTintColor={PRIMARY_COLOR}
       /> :
-      "Hello"
+      <Text>Hello</Text>
       }
     </View>
 
@@ -382,7 +404,7 @@ return (
         maximumValue={255}
         step={51}
         value={brightness}
-        onValueChange={(value) =>
+        onValueChange={(value: any) =>
           selectedRoom === 'living'
             ? setColor(red, green, blue, Math.round(value))
             : setColor(redBedroom, greenBedroom, blueBedroom, Math.round(value))
@@ -391,7 +413,7 @@ return (
         thumbTintColor={PRIMARY_COLOR}
         style={{ width: "100%" }}
       /> :
-      "hello"
+      <Text>Hello</Text>
       } 
     </View>
 
@@ -434,13 +456,7 @@ card: {
   shadowRadius: 8,
   elevation: 4,
 },
-status: {
-  fontSize: 16,
-  fontWeight: "600",
-  color: "#333",
-  textAlign: "center",
-  marginBottom: 12,
-},
+
 label: {
   fontSize: 16,
   fontWeight: "500",
@@ -456,19 +472,21 @@ picker: {
   marginTop: 10,
 },
 button: {
+  maxWidth: 500,
   paddingVertical: 12,
   paddingHorizontal: 30,
   borderRadius: 30,
   alignItems: "center",
   justifyContent: "center",
   marginTop: 12,
+
 },
-onButton: {
-  backgroundColor: "#4CAF50",
-},
-offButton: {
-  backgroundColor: "#CFD8DC",
-},
+ onButton: {
+    backgroundColor: '#f44336',
+  },
+  offButton: {
+    backgroundColor: '#4caf50',
+  },
 buttonText: {
   color: "#fff",
   fontSize: 16,

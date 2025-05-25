@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { MQTTPublisher} from '../services/mqttPublisher';
+import { getSunrise, getSunriseTime, triggerSunriseEvent } from '@/utilsFunctions';
 
 export type Room = 'living' | 'bedroom'; 
 
@@ -12,8 +13,13 @@ type LedState = {
   blueBedroom: number;
   brightness: number;
   selectedRoom: Room;
+  automaticControl: boolean;
+  sunriseTime: Date | null;
   setColor: (r: number, g: number, b: number, brightness: number) => void;
   setRoom: (room: Room) => void;
+  setAutomaticControl: (isAutomated: boolean) => void;
+  fetchSunriseTime: () => Promise<void>;
+
 };
 
 
@@ -25,8 +31,9 @@ export const useLedStore = create<LedState>((set, get) => ({
   greenBedroom: 0,
   blueBedroom: 0,
   brightness: 1,
+  automaticControl: false,
   selectedRoom: 'living',
-
+  sunriseTime: null,
 
   setColor: (r, g, b, brightness) => {
 
@@ -59,4 +66,35 @@ export const useLedStore = create<LedState>((set, get) => ({
     },
   
   setRoom: (room: Room) => set({ selectedRoom: room }),
+
+  setAutomaticControl: (isAutomated: boolean) => {
+    set({ automaticControl: isAutomated });
+
+    // Delay and trigger logic should be handled after sunriseTime is fetched
+    get().fetchSunriseTime().then(() => {
+      const { sunriseTime, automaticControl } = get();
+      if (!sunriseTime) return;
+
+      const now = new Date();
+      let  delay = new Date(sunriseTime).getTime() - now.getTime();
+      // console.log((delay / 1000) - 35900) ;
+      // delay = delay - 35900000;
+      // console.log(delay) ;
+      delay = 3000;
+
+      if (automaticControl) {
+        setTimeout(() => triggerSunriseEvent(automaticControl), delay);
+      }
+    });
+  },
+
+   fetchSunriseTime: async () => {
+    try {
+      const sunrise = await getSunrise();
+      set({ sunriseTime: sunrise });
+    } catch (error) {
+      console.error("Failed to fetch sunrise time:", error);
+    }
+  },
+
 }));

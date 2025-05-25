@@ -231,9 +231,9 @@
 
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import React, { useEffect, useRef, useState } from 'react';
-import { MQTTClientSingleton, MQTT_TOPIC_TEMPERATURE } from '@/services/mqttService';
 import { useTemperatureStore } from '@/stores/useTemperatureStore';
-
+import { MAX_HEATER_TEMP, MIN_HEATER_TEMP, MQTT_TOPIC_TEMPERATURE } from '@/constants';
+import { MQTTClientSingleton } from '@/services/mqttService';
 const Temperature = () => {
   const [currentTemperature, setCurrentTemperature] = useState<number | null>(null);
   const {
@@ -263,15 +263,11 @@ const Temperature = () => {
   }, []);
 
   const increaseTemperature = () => {
-    if (desiredTemperatureHeater < 35) {
       setDesiredTemperatureHeater(desiredTemperatureHeater + 1);
-    }
   };
 
   const decreaseTemperature = () => {
-    if (desiredTemperatureHeater > 15) {
       setDesiredTemperatureHeater(desiredTemperatureHeater - 1);
-    }
   };
 
   const toggleHeater = () => {
@@ -297,18 +293,29 @@ const Temperature = () => {
       <View style={styles.section}>
         <Text style={styles.label}>Current Temperature</Text>
         <Text style={styles.currentTemp}>
-          {currentTemperature !== null ? `${currentTemperature}°C` : 'Loading...'}
+          {currentTemperature !== null && !isNaN(currentTemperature) ? `${currentTemperature}°C` : 'Loading...'}
         </Text>
       </View>
 
       <View style={styles.section}>
         <Text style={styles.label}>Desired Temperature</Text>
         <View style={styles.tempControl}>
-          <TouchableOpacity style={styles.tempButton} onPress={decreaseTemperature}>
+          <TouchableOpacity style={[styles.tempButton,
+                          desiredTemperatureHeater - 1 < MIN_HEATER_TEMP && styles.buttonDisabled
+          ]}
+           onPress={decreaseTemperature}
+           disabled={desiredTemperatureHeater - 1 < MIN_HEATER_TEMP}
+           >
             <Text style={styles.tempButtonText}>-</Text>
           </TouchableOpacity>
           <Text style={styles.desiredTemp}>{desiredTemperatureHeater}°C</Text>
-          <TouchableOpacity style={styles.tempButton} onPress={increaseTemperature}>
+          <TouchableOpacity 
+              style={[styles.tempButton,
+                desiredTemperatureHeater + 1 > MAX_HEATER_TEMP && styles.buttonDisabled
+              ]} 
+            onPress={increaseTemperature}
+            disabled={desiredTemperatureHeater + 1 > MAX_HEATER_TEMP}
+            >
             <Text style={styles.tempButtonText}>+</Text>
           </TouchableOpacity>
         </View>
@@ -393,4 +400,7 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: 'bold',
   },
+   buttonDisabled: {
+      backgroundColor: '#B0BEC5', // grayish tone for disabled
+    }
 });

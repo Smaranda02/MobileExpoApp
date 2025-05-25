@@ -4,8 +4,7 @@ import { View, Text, Button, TextInput, StyleSheet, Dimensions, TouchableOpacity
 import React, { useEffect, useRef, useState } from 'react'
 import { MQTTClientSingleton } from '@/services/mqttService';
 import { useTemperatureStore } from '@/stores/useTemperatureStore';
-import { MQTT_TOPIC_FAN, MQTT_TOPIC_AIR_QUALITY, MQTT_TOPIC_WATER} from '@/services/mqttService';
-
+import { MIN_FAN_TEMP, MQTT_TOPIC_AIR_QUALITY, MQTT_TOPIC_WATER, MIN_WATER_THRESHOLD } from '@/constants';
 const AirQuality = () => {
 
   const [connected, setConnected] = useState<boolean>(false);
@@ -54,10 +53,11 @@ const AirQuality = () => {
                   smokeWarningDisplayed = true;
                 }
               }
-          }
+        }
 
           if(topic === MQTT_TOPIC_WATER){
-            if(waterWarningDisplayed == false){
+            console.log(payload);
+            if(parseFloat(payload) > MIN_WATER_THRESHOLD && waterWarningDisplayed == false){
               showWaterWarning();
               waterWarningDisplayed = true;
             }
@@ -102,9 +102,7 @@ const AirQuality = () => {
   };
 
   const decreaseTemperature = () => {
-    if (desiredTemperatureFan > 20) {
       setDesiredTemperatureFan(desiredTemperatureFan - 1);
-    }
   };
 
   const showSmokeDetectedWarning = () => {
@@ -154,11 +152,11 @@ const AirQuality = () => {
       <View style={styles.container}>
       <Text style={styles.header}>Air Quality</Text>
       <View style={styles.dataContainer}>
-        <Text style={styles.label}>🌡️ Temperature: {currentTemperature !== null ? `${currentTemperature} °C` : 'Loading...'}</Text>
-        <Text style={styles.label}>💧 Humidity: {currentHumidity !== null ? `${currentHumidity} %` : 'Loading...'}</Text>
-        <Text style={styles.label}>🌍 Pressure: {currentPressure !== null ? `${currentPressure} hPa` : 'Loading...'}</Text>
-        <Text style={styles.label}>🔥 Gas Resistance: {currentGasResistance !== null ? `${currentGasResistance} kΩ` : 'Loading...'}</Text>
-        <Text style={styles.label}>🌎 AQI: {aqi !== null ? `${aqi.toFixed(2)}` : 'Calculating...'}</Text>
+        <Text style={styles.label}>🌡️ Temperature: {!isNaN(currentTemperature) ? `${currentTemperature} °C` : 'Loading...'}</Text>
+        <Text style={styles.label}>💧 Humidity: {currentHumidity !== null && !isNaN(currentHumidity) ? `${currentHumidity} %` : 'Loading...'}</Text>
+        <Text style={styles.label}>🌍 Pressure: {currentPressure !== null && !isNaN(currentPressure)? `${currentPressure} hPa` : 'Loading...'}</Text>
+        <Text style={styles.label}>🔥 Gas Resistance: {currentGasResistance !== null && !isNaN(currentGasResistance)? `${currentGasResistance} kΩ` : 'Loading...'}</Text>
+        <Text style={styles.label}>🌎 AQI: {aqi !== null && !isNaN(aqi) ? `${aqi.toFixed(2)}` : 'Calculating...'}</Text>
       </View>
       <View style={styles.tipContainer}>
         <Text style={styles.tipHeader}>🌿 Air Quality Tips</Text>
@@ -185,10 +183,10 @@ const AirQuality = () => {
               <View style={styles.buttonContainer}>
                 <TouchableOpacity 
                 style={[styles.tempButton,
-                  desiredTemperatureFan - 1 < 20 && styles.buttonDisabled
+                  desiredTemperatureFan - 1 < MIN_FAN_TEMP && styles.buttonDisabled
                 ]} 
                 onPress={decreaseTemperature}
-                disabled={desiredTemperatureFan - 1 < 20}>
+                disabled={desiredTemperatureFan - 1 < MIN_FAN_TEMP}>
                   <Text style={styles.buttonText}>-</Text>
                 </TouchableOpacity>
       
@@ -231,12 +229,12 @@ const styles = StyleSheet.create({
       fontSize: 18,
       fontWeight: 'bold',
     },
-    onButton: {
-      backgroundColor: '#BDBDBD',
-    },
-    offButton: {
-      backgroundColor: '#4CAF50',
-    },
+  onButton: {
+    backgroundColor: '#f44336',
+  },
+  offButton: {
+    backgroundColor: '#4caf50',
+  },
     section: {
       marginBottom: 40,
       alignItems: 'center',

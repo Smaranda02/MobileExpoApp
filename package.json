@@ -23,6 +23,7 @@
     "@react-navigation/native": "^7.0.0",
     "axios": "^1.7.7",
     "date-fns": "^4.1.0",
+    "date-fns-tz": "^3.2.0",
     "expo": "53.0.9",
     "expo-audio": "~0.4.5",
     "expo-config-plugins": "^0.1.2",
@@ -40,6 +41,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-native": "0.79.2",
+    "react-native-awesome-slider": "^2.9.0",
     "react-native-chart-kit": "^6.12.0",
     "react-native-gesture-handler": "~2.24.0",
     "react-native-reanimated": "~3.17.4",
@@ -48,7 +50,8 @@
     "react-native-svg": "15.11.2",
     "react-native-web": "^0.20.0",
     "reanimated-color-picker": "^3.0.4",
-    "zustand": "^5.0.4"
+    "zustand": "^5.0.4",
+    "expo-secure-store": "~14.2.3"
   },
   "devDependencies": {
     "@babel/core": "^7.26.0",

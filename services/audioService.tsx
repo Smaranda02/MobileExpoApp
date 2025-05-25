@@ -312,7 +312,7 @@
 import { useEffect, useState } from 'react';
 import { Alert } from 'react-native';
 import * as FileSystem from 'expo-file-system';
-import { SERVER_IP } from './mqttService';
+import { SERVER_IP } from '@/constants';
 
 import {
   useAudioRecorder,
