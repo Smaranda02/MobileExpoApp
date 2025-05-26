@@ -22,10 +22,10 @@ export const MIN_WATER_THRESHOLD  = 2.5;
 export const VALUES_ERROR_MARGIN = 100;
 
 // export const MQTT_SERVER = "ws://192.168.191.78:8080/mqtt"; //smara
-export const MQTT_SERVER = "ws://192.168.1.104:8080/mqtt"; //robotics314
+// export const MQTT_SERVER = "ws://192.168.1.104:8080/mqtt"; //robotics314
 // export const MQTT_SERVER = "ws://172.20.10.3:8080/mqtt"; //cori
 // const MQTT_SERVER = "ws://192.168.2.100:8080/mqtt" // VPN
-// export const MQTT_SERVER = "ws://192.168.1.110:8080/mqtt"; //  MQTT broker foisor
+export const MQTT_SERVER = "ws://192.168.1.110:8080/mqtt"; //  MQTT broker foisor
 
 // const MQTT_SERVER = Platform.OS === 'web' ? "wss://192.168.1.110:8082/mqtt" : "ws://192.168.1.110:8080/mqtt"; //  MQTT broker foisor
 

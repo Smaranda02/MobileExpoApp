@@ -4,6 +4,7 @@ import FirstPage from "./firstPage";
 import React from "react";
 import { useSession } from "@/services/authContext";
 import { Redirect } from "expo-router";
+import { Platform } from "react-native";
 
 export default function Index() {
   
@@ -17,15 +18,15 @@ export default function Index() {
 
   });
 
-  // if (isLoading || isShowSplash) {
-  //   return <SplashScreen />;
-  // }
+  if (isLoading || isShowSplash) {
+    return <SplashScreen />;
+  }
 
-  // if (!session) {
-  //   // On web, static rendering will stop here as the user is not authenticated
-  //   // in the headless Node process that the pages are rendered in.
-  //   return <Redirect href="/sign-in" />;
-  // }
+  if (!session && Platform.OS != 'web') {
+    // On web, static rendering will stop here as the user is not authenticated
+    // in the headless Node process that the pages are rendered in.
+    return <Redirect href="/sign-in" />;
+  }
 
 
   return <FirstPage/>;

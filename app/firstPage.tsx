@@ -106,11 +106,11 @@ export default function FirstPage() {
   return (
     <SafeAreaView style={styles.safeArea}>
 
-      {/* <View style={styles.topRight}>
+      <View style={styles.topRight}>
             <TouchableOpacity onPress={signOut}>
               <Text style={styles.logoutText}>Logout</Text>
             </TouchableOpacity>
-      </View> */}
+      </View>
 
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <Text style={styles.title}>

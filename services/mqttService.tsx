@@ -1,242 +1,131 @@
-import Paho from "paho-mqtt";
-import { MQTT_PASSWORD, MQTT_SERVER, MQTT_TOPIC, MQTT_TOPIC_AIR_QUALITY, MQTT_TOPIC_BEDROOM, MQTT_TOPIC_CONSUMPTION, MQTT_TOPIC_CONSUMPTION_ESP2, MQTT_TOPIC_CURTAINS, MQTT_TOPIC_FAN, MQTT_TOPIC_LIVING, MQTT_TOPIC_SOLAR_PANEL, MQTT_TOPIC_TEMPERATURE, MQTT_TOPIC_WATER, MQTT_USERNAME, SERVER_IP } from "@/constants";
-import { Platform } from "react-native";
-import { useMqttStore } from "@/stores/useMqttStore";
+import mqtt, { connect, MqttClient } from 'mqtt';
+import {
+  MQTT_PASSWORD,
+  MQTT_SERVER,
+  MQTT_TOPIC,
+  MQTT_TOPIC_AIR_QUALITY,
+  MQTT_TOPIC_BEDROOM,
+  MQTT_TOPIC_CONSUMPTION,
+  MQTT_TOPIC_CONSUMPTION_ESP2,
+  MQTT_TOPIC_CURTAINS,
+  MQTT_TOPIC_FAN,
+  MQTT_TOPIC_LIVING,
+  MQTT_TOPIC_SOLAR_PANEL,
+  MQTT_TOPIC_TEMPERATURE,
+  MQTT_TOPIC_WATER,
+  MQTT_USERNAME,
+} from '@/constants';
 
+import { useMqttStore } from '@/stores/useMqttStore';
 
 type MessageCallback = (topic: string, payload: string) => void;
 
 class MQTTClientSingleton {
   private static instance: MQTTClientSingleton;
-  private mqttClient: Paho.Client | null = null;
-  private connected: boolean = false;
+  //private mqttClient: MqttClient | null = null
+  private mqttClient: any;
 
-  private messageCallbacks: MessageCallback[] = []; // List of registered callbacks
+  private connected = false;
 
-  // Private constructor to prevent instantiation
+  private messageCallbacks: MessageCallback[] = [];
+
   private constructor() {
-    // Initialize the MQTT client immediately upon creation
-
-    this.mqttClient = new Paho.Client(MQTT_SERVER, `client-mobileApp`);
-    // this.mqttClient = new Paho.Client("192.168.191.78", 8080, `client-mobileApp`);
-    // this.mqttClient = new Paho.Client("192.168.191.78", 8080, '/mqtt', "clinet-mobile")
-    // this.mqttClient = new Paho.Client("192.168.191.78", 8080, "1")
-
-
-    // Handle connection loss
-    this.mqttClient.onConnectionLost = () => {
-      console.log("Connection lost");
-      this.connected = false;
-      this.reconnect();
-    };
-
-    // Handle incoming messages
-    this.mqttClient.onMessageArrived = this.handleIncomingMessages;
-
     this.connect();
   }
 
-  private connect(){
-    // console.log("The mqtt: ", this.mqttClient);
-    if (!this.mqttClient) return;
-    console.log("Attempting to connect to MQTT broker...");
-
-    this.mqttClient.connect({
-      userName: MQTT_USERNAME,
+  private connect() {
+    console.log('Connecting to MQTT broker...');
+       this.mqttClient = mqtt.connect(MQTT_SERVER, {
+      username: MQTT_USERNAME,
       password: MQTT_PASSWORD,
-      onSuccess: () => {
-        console.log("Connected to MQTT Broker");
-        useMqttStore.getState().setMqttState(true);
+      reconnectPeriod: 1000, // Auto-reconnect every 1s
+    });
 
-        this.connected = true;
-        if (this.mqttClient) {
-          this.mqttClient.subscribe(MQTT_TOPIC_LIVING);
-          this.mqttClient.subscribe(MQTT_TOPIC);
-          this.mqttClient.subscribe(MQTT_TOPIC_BEDROOM);
-          this.mqttClient.subscribe(MQTT_TOPIC_TEMPERATURE);
-          this.mqttClient.subscribe(MQTT_TOPIC_AIR_QUALITY);
-          this.mqttClient.subscribe(MQTT_TOPIC_WATER);
-          this.mqttClient.subscribe(MQTT_TOPIC_CONSUMPTION);
-          this.mqttClient.subscribe(MQTT_TOPIC_CONSUMPTION_ESP2);
-          this.mqttClient.subscribe(MQTT_TOPIC_SOLAR_PANEL);
-          this.mqttClient.subscribe(MQTT_TOPIC_CURTAINS);
-          this.mqttClient.subscribe(MQTT_TOPIC_FAN);
-        }
-      },
-      onFailure: (error) => {
-        console.error("Connection failed:", error);
-        this.connected = false;
-        useMqttStore.getState().setMqttState(false);
-        this.reconnect();
-      },
+    this.mqttClient.on('connect', () => {
+      console.log('Connected to MQTT Broker');
+      this.connected = true;
+      useMqttStore.getState().setMqttState(true);
+
+      this.subscribeToTopics();
+    });
+
+    this.mqttClient.on('error', (error:any) => {
+      console.error('MQTT connection error:', error);
+      useMqttStore.getState().setMqttState(false);
+    });
+
+    this.mqttClient.on('close', () => {
+      console.warn('MQTT connection closed');
+      this.connected = false;
+      useMqttStore.getState().setMqttState(false);
+    });
+
+    this.mqttClient.on('message', (topic:any, payload:any) => {
+      const message = payload.toString();
+      this.messageCallbacks.forEach((cb) => cb(topic, message));
     });
   }
 
-  // Reconnect logic
-  private reconnect() {
-    console.log(`Reconnecting in 1 second...`);
-    setTimeout(() => {
-      this.connect();
-    }, 1000);
+  private subscribeToTopics() {
+    if (!this.mqttClient || !this.connected) return;
+
+    const topics = [
+      MQTT_TOPIC,
+      MQTT_TOPIC_LIVING,
+      MQTT_TOPIC_BEDROOM,
+      MQTT_TOPIC_TEMPERATURE,
+      MQTT_TOPIC_AIR_QUALITY,
+      MQTT_TOPIC_WATER,
+      MQTT_TOPIC_CONSUMPTION,
+      MQTT_TOPIC_CONSUMPTION_ESP2,
+      MQTT_TOPIC_SOLAR_PANEL,
+      MQTT_TOPIC_CURTAINS,
+      MQTT_TOPIC_FAN,
+    ];
+
+    topics.forEach((topic) => {
+      this.mqttClient?.subscribe(topic, {}, (err:any) => {
+        if (err) {
+          console.error(`Failed to subscribe to ${topic}:`, err);
+        } else {
+          console.log(`Subscribed to ${topic}`);
+        }
+      });
+    });
   }
 
-  // Singleton instance getter
   public static getInstance(): MQTTClientSingleton {
     if (!this.instance) {
-      this.instance = new MQTTClientSingleton(); // Client is initialized here
+      this.instance = new MQTTClientSingleton();
     }
     return this.instance;
   }
 
-  // Publish a message to the MQTT broker
   public publishMessage(topic: string, payload: string): void {
     if (this.mqttClient && this.connected) {
-      const message = new Paho.Message(payload);
-      message.destinationName = topic;
-      this.mqttClient.send(message);
+      this.mqttClient.publish(topic, payload);
       console.log(`Published: ${payload} to topic: ${topic}`);
     } else {
-      console.warn("MQTT client not connected. Unable to publish.");
+      console.warn('MQTT client not connected. Unable to publish.');
     }
   }
 
-  private handleIncomingMessages = (message: Paho.Message) => {
-    const topic = message.destinationName;
-    const payload = message.payloadString;
-
-    // console.log(`Received message on topic '${topic}': ${payload}`);
-
-    // Notify all registered callbacks
-    this.messageCallbacks.forEach((callback) => callback(topic, payload));
-  };
-
-
   public registerMessageCallback(callback: MessageCallback): void {
     this.messageCallbacks.push(callback);
-    console.log("Callback registered for MQTT messages");
+    console.log('Callback registered for MQTT messages');
   }
 
-
-  // Check if the client is connected
   public isConnected(): boolean {
     return this.connected;
   }
 
-  // Disconnect the client
   public disconnect(): void {
-    if (this.mqttClient && this.connected) {
-      this.mqttClient.disconnect();
-      console.log("MQTT Client disconnected");
+    if (this.mqttClient) {
+      this.mqttClient.end();
       this.connected = false;
+      console.log('MQTT Client disconnected');
     }
   }
 }
 
 export { MQTTClientSingleton };
-
-
-
-// import Paho from "paho-mqtt";
-// import { useEffect, useState } from "react";
-
-// // const MQTT_SERVER = 'ws://broker.hivemq.com:8000/mqtt'; // WebSocket URL
-// // const MQTT_SERVER = 'ws://broker.emqx.io:8083/mqtt'; // WebSocket URL
-// const MQTT_TOPIC_LIVING = "esp32/living"; // The topic you want to publish to
-// const MQTT_TOPIC = "esp32/relay"; // The topic you want to publish to
-// const MQTT_TOPIC_BEDROOM = "esp32/bedroom"; // The topic you want to publish to
-// const MQTT_TOPIC_TEMPERATURE = 'esp32/temperature'; // The topic you want to publish to
-
-// // const MQTT_SERVER = 'ws://192.168.2.100:8080/mqtt'
-// const MQTT_SERVER = "ws://192.168.100.92:8080/mqtt";
-// const MQTT_USERNAME = "admin"; // MQTT username
-// const MQTT_PASSWORD = "admin"; // MQTT password
-
-// let mqttClient : Paho.Client | null = null; // Global MQTT client instance to avoid duplication
-
-// // Shared MQTT Client Hook
-// export const useMQTTClient = () => {
-//     const [connected, setConnected] = useState(false);
-//     const [currentTemperature, setCurrentTemperature] = useState(21.0); // Temperature from sensor
-//     const [lastMessage, setLastMessage] = useState(null);
-
-//     useEffect(() => {
-
-//         if (!mqttClient) {
-//          mqttClient = new Paho.Client(MQTT_SERVER, `clientId_${Math.random()}`);
-//         }
-
-//       // Handle Connection Loss
-//       mqttClient.onConnectionLost = () => {
-//         console.log("Connection lost");
-//         setConnected(false);
-//       };
-  
-//       // Handle Incoming Messages
-//       mqttClient.onMessageArrived = (message: any) => {
-//         console.log(
-//           `Received message: ${message.payloadString} on topic ${message.destinationName}`
-//         );
-
-//         // setLastMessage({
-//         //     topic: message.destinationName,
-//         //     payload: message.payloadString,
-//         //   });
-  
-//         if (message.destinationName === MQTT_TOPIC_TEMPERATURE) {
-//           // Parse temperature message
-//           const tempearture = parseFloat(message.payloadString);
-//           console.log("Received temperature:", tempearture);
-//           setCurrentTemperature(tempearture);
-//         }
-//       };
-  
-//       // Connect to the MQTT server
-//       mqttClient.connect({
-//         userName: MQTT_USERNAME, // Add the username
-//         password: MQTT_PASSWORD, // Add the password
-//         onSuccess: () => {
-//           console.log("Connected to MQTT Broker");
-//           setConnected(true);
-//           if(mqttClient){
-//             mqttClient.subscribe(MQTT_TOPIC_LIVING); // Subscribe to temperature topic
-//             mqttClient.subscribe(MQTT_TOPIC); // Subscribe to all "sensor" topics
-//             mqttClient.subscribe(MQTT_TOPIC_BEDROOM); // Subscribe to all "sensor" topics
-//             mqttClient.subscribe(MQTT_TOPIC_TEMPERATURE); // Subscribe to all "sensor" topics
-//             }
-
-//         },
-//         onFailure: (error: any) => {
-//           console.error("Connection failed:", error);
-//           setConnected(false);
-//         },
-//       });
-  
-//       return () => {
-//         if (mqttClient && connected) {
-//           mqttClient.disconnect();
-//           console.log("MQTT Client disconnected");
-//           setConnected(false);
-//           mqttClient = null;
-//         }
-//       };
-//     }, []);
-  
-//     const publishMessage = (topic : any, payload : any) => {
-//         if (mqttClient && connected) {
-//           const message = new Paho.Message(payload);
-//           message.destinationName = topic;
-//           mqttClient.send(message);
-//           console.log(`Published: ${payload} to topic: ${topic}`);
-//         } else {
-//           console.warn("MQTT client not connected. Unable to publish.");
-//         }
-//       };
-    
-//       return {
-//         connected,         // Connection state
-//         currentTemperature,       // Temperature value (example)
-//         lastMessage,       // Last received message
-//         publishMessage,    // Function to publish MQTT messages
-//       };
-//   };
-  
