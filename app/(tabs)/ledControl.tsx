@@ -33,6 +33,7 @@ const LedControl = () => {
     green,
     blue,
     brightness,
+    brightnessBedroom,
     redBedroom,
     greenBedroom,
     blueBedroom,
@@ -52,6 +53,7 @@ const LedControl = () => {
   const [forceUpdateBlue, setForceUpdateBlue] = useState(100);
   const [forceUpdateGreen, setForceUpdateGreen] = useState(200);
   const [forceUpdateBrightness, setForceUpdateBrightness] = useState(300);
+  const [forceUpdateBrightnessBedroom, setForceUpdateBrightnessBedroom] = useState(700);
 
   const { recorder, startRecording, stopRecording, transcription, entities } =
     useAudioService();
@@ -75,30 +77,36 @@ const LedControl = () => {
     }
   };
 
+
+  useEffect(() => {
+  if (selectedRoom === "living") {
+    progressRed.value = red;
+    progressGreen.value = green;
+    progressBlue.value = blue;
+    progressBrightness.value = brightness;
+  } else {
+    progressRed.value = redBedroom;
+    progressGreen.value = greenBedroom;
+    progressBlue.value = blueBedroom;
+    progressBrightness.value = brightnessBedroom;
+  }
+
+  setForceUpdateRed((prev) => prev + 1);
+  setForceUpdateGreen((prev) => prev + 1);
+  setForceUpdateBlue((prev) => prev + 1);
+  selectedRoom === "living"
+    ? setForceUpdateBrightness((prev) => prev + 1)
+    : setForceUpdateBrightnessBedroom((prev) => prev + 1);
+
+}, [selectedRoom, red, green, blue, brightness, redBedroom, greenBedroom, blueBedroom, brightnessBedroom]);
+
+
   const turnOnOFF = (value: number) => {
     if (value == 1) {
       setColor(0, 0, 0, value);
-      progressRed.value = 0;
-      progressBlue.value = 0;
-      progressGreen.value = 0;
-      progressBrightness.value = value;
-      setForceUpdateRed((prev) => prev + 1);
-      setForceUpdateBlue((prev) => prev + 1);
-      setForceUpdateGreen((prev) => prev + 1);
-      setForceUpdateBrightness((prev) => prev + 1);
-
 
     } else {
       setColor(value, value, value, value);
-      progressRed.value = value;
-      progressBlue.value = value;
-      progressGreen.value = value;
-      progressBrightness.value = value;
-      setForceUpdateRed((prev) => prev + 1);
-      setForceUpdateBlue((prev) => prev + 1);
-      setForceUpdateGreen((prev) => prev + 1);
-      setForceUpdateBrightness((prev) => prev + 1);
-
     }
   };
 
@@ -113,18 +121,27 @@ const LedControl = () => {
     }
   };
 
+  const rerender = () => {
+    if(Platform.OS === 'web'){
+      setForceUpdateRed((prev) => prev + 1);
+      setForceUpdateBlue((prev) => prev + 1);
+      setForceUpdateGreen((prev) => prev + 1);
+      selectedRoom == "living" ? setForceUpdateBrightness((prev) => prev + 1) : setForceUpdateBrightnessBedroom((prev) => prev + 1)
+    }
+  }
+
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       <View style={styles.card}>
         <TouchableOpacity
           style={[
             styles.button,
-            brightness > 1 ? styles.onButton : styles.offButton,
+            brightness > 1 || red || blue || green ? styles.onButton : styles.offButton,
           ]}
-          onPress={() => turnOnOFF(brightness > 1 ? 1 : 255)}
+          onPress={() => turnOnOFF(brightness > 1 || red || blue || green ? 1 : 255)}
         >
           <Text style={styles.buttonText}>
-            {brightness > 1 ? "Turn OFF" : "Turn ON"}
+            {brightness > 1 || red || blue || green ? "Turn OFF" : "Turn ON"}
           </Text>
         </TouchableOpacity>
       </View>
@@ -133,7 +150,7 @@ const LedControl = () => {
         <Text style={styles.label}>Choose Room: {selectedRoom}</Text>
         <Picker
           selectedValue={selectedRoom}
-          onValueChange={(itemValue) => setRoom(itemValue)}
+          onValueChange={(itemValue) => {setRoom(itemValue); rerender();}}
           style={styles.picker}
         >
           <Picker.Item label="Living Room" value="living" />
@@ -161,13 +178,18 @@ const LedControl = () => {
                     Math.round(value),
                     greenBedroom,
                     blueBedroom,
-                    brightness
+                    brightnessBedroom
                   )
                 progressRed.value = value
                 }
             }
             steps={5}
             snapToStep={true}
+            theme={{
+              maximumTrackTintColor: '#E0E0E0', // background track color
+              minimumTrackTintColor: "red", // <- blue track
+              thumbTintColor: "red" // <- blue thumb
+            }}
           />
         ) : (
           <Slider
@@ -181,7 +203,7 @@ const LedControl = () => {
                     Math.round(value),
                     greenBedroom,
                     blueBedroom,
-                    brightness
+                    brightnessBedroom
                   )
             }
             step={55}
@@ -205,7 +227,7 @@ const LedControl = () => {
                     redBedroom,
                     Math.round(value),
                     blueBedroom,
-                    brightness
+                    brightnessBedroom
                   )
             }
             step={55}
@@ -224,11 +246,17 @@ const LedControl = () => {
                     redBedroom,
                     Math.round(value),
                     blueBedroom,
-                    brightness
+                    brightnessBedroom
                   )
             }
             steps={5}
             snapToStep={true}
+            theme={{
+              maximumTrackTintColor: '#E0E0E0', // background track color
+              minimumTrackTintColor: "green", // <- blue track
+              thumbTintColor: "green" // <- blue thumb
+            }}
+            
           />
         )}
 
@@ -247,7 +275,7 @@ const LedControl = () => {
                     redBedroom,
                     greenBedroom,
                     Math.round(value),
-                    brightness
+                    brightnessBedroom
                   )
             }
             step={55}
@@ -266,23 +294,28 @@ const LedControl = () => {
                     redBedroom,
                     greenBedroom,
                     Math.round(value),
-                    brightness
+                    brightnessBedroom
                   )
             }
             steps={5}
             snapToStep={true}
+            theme={{
+              maximumTrackTintColor: '#E0E0E0', // background track color
+              minimumTrackTintColor: "blue", // <- blue track
+              thumbTintColor: "blue" // <- blue thumb
+            }}
           />
         )}
       </View>
 
       <View style={styles.card}>
-        <Text style={styles.label}>Brightness: {brightness}</Text>
+        <Text style={styles.label}>Brightness: {selectedRoom == "living" ? brightness : brightnessBedroom}</Text>
         {Platform.OS !== "web" ? (
           <Slider
             minimumValue={1}
             maximumValue={255}
             step={51}
-            value={brightness}
+            value={selectedRoom == "living" ? brightness : brightnessBedroom}
             onValueChange={(value: any) =>
               selectedRoom === "living"
                 ? setColor(red, green, blue, Math.round(value))
@@ -299,7 +332,7 @@ const LedControl = () => {
           />
         ) : (
           <Slider
-            key={forceUpdateBrightness}
+            key={selectedRoom == "living" ? forceUpdateBrightness : forceUpdateBrightnessBedroom }
             progress={progressBrightness}
             minimumValue={min}
             maximumValue={max}
@@ -315,6 +348,11 @@ const LedControl = () => {
             }
             steps={5}
             snapToStep={true}
+            theme={{
+              maximumTrackTintColor: '#E0E0E0', // background track color
+              minimumTrackTintColor: PRIMARY_COLOR, // <- blue track
+              thumbTintColor: SECONDARY_COLOR // <- blue thumb
+            }}
           />        
           )}
       </View>
@@ -374,13 +412,14 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   button: {
-    maxWidth: 500,
     paddingVertical: 12,
     paddingHorizontal: 30,
     borderRadius: 30,
     alignItems: "center",
     justifyContent: "center",
     marginTop: 12,
+    maxWidth: 500,
+
   },
   onButton: {
     backgroundColor: "#f44336",

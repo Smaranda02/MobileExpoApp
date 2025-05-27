@@ -11,6 +11,7 @@ type LedState = {
   greenBedroom: number;
   blueBedroom: number;
   brightness: number;
+  brightnessBedroom: number;
   selectedRoom: Room;
   automaticControl: boolean;
   sunriseTime: Date | null;
@@ -18,7 +19,6 @@ type LedState = {
   setRoom: (room: Room) => void;
   setAutomaticControl: (isAutomated: boolean) => void;
   fetchSunriseTime: () => Promise<void>;
-
 };
 
 
@@ -30,18 +30,19 @@ export const useLedStore = create<LedState>((set, get) => ({
   greenBedroom: 0,
   blueBedroom: 0,
   brightness: 1,
+  brightnessBedroom: 1,
   automaticControl: false,
   selectedRoom: 'living',
   sunriseTime: null,
 
   setColor: (r, g, b, brightness) => {
-
+    
     // console.log(get().selectedRoom);
     // console.log(r,g,b);  //why is this logged 4 thime 
 
     const {selectedRoom} = get();
     const { red, green, blue, brightness: oldBrightness } = get();
-    const { redBedroom, greenBedroom, blueBedroom, brightness: oldBrightnessBedroom } = get();
+    const { redBedroom, greenBedroom, blueBedroom, brightnessBedroom: oldBrightnessBedroom } = get();
 
     if (selectedRoom == 'living') {
       if(r === red && g === green && b === blue && brightness === oldBrightness) return; 
@@ -51,7 +52,7 @@ export const useLedStore = create<LedState>((set, get) => ({
 
     if (selectedRoom == 'bedroom') {
       if(r === redBedroom && g === greenBedroom && b === blueBedroom && brightness === oldBrightnessBedroom) return; 
-      set({ redBedroom: r, greenBedroom: g, blueBedroom: b, brightness });
+      set({ redBedroom: r, greenBedroom: g, blueBedroom: b, brightnessBedroom: brightness });
     }
 
 
