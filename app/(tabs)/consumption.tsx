@@ -181,9 +181,9 @@ const Consumption = () => {
    
     mqttClient.current.registerMessageCallback(messageHandler);
 
-    return () => {
-      mqttClient.current?.disconnect(); // Clean up on component unmount
-    };
+    // return () => {
+    //   mqttClient.current?.disconnect(); // Clean up on component unmount
+    // };
   }, [selectedESP]);
 
 

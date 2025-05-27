@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 import { MQTTPublisher} from '../services/mqttPublisher';
 import { getSunrise, getSunriseTime, triggerSunriseEvent } from '@/utilsFunctions';
-
 export type Room = 'living' | 'bedroom'; 
 
 type LedState = {

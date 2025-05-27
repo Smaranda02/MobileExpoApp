@@ -66,9 +66,9 @@ const AirQuality = () => {
 
     mqttClient.current.registerMessageCallback(messageHandler);
 
-    return () => {
-      mqttClient.current?.disconnect(); // Disconnect on component unmount
-    };
+    // return () => {
+    //   mqttClient.current?.disconnect(); // Disconnect on component unmount
+    // };
   }, []);
 
 

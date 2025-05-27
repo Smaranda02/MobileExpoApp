@@ -257,9 +257,9 @@ const Temperature = () => {
 
     mqttClient.current.registerMessageCallback(messageHandler);
 
-    return () => {
-      mqttClient.current?.disconnect();
-    };
+    // return () => {
+    //   mqttClient.current?.disconnect();
+    // };
   }, []);
 
   const increaseTemperature = () => {

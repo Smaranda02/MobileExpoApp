@@ -52,6 +52,7 @@ class MQTTClientSingleton {
     this.mqttClient.on('error', (error:any) => {
       console.error('MQTT connection error:', error);
       useMqttStore.getState().setMqttState(false);
+      this.mqttClient.reconnect();
     });
 
     this.mqttClient.on('close', () => {
@@ -88,7 +89,7 @@ class MQTTClientSingleton {
         if (err) {
           console.error(`Failed to subscribe to ${topic}:`, err);
         } else {
-          console.log(`Subscribed to ${topic}`);
+          // console.log(`Subscribed to ${topic}`);
         }
       });
     });
