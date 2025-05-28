@@ -165,7 +165,7 @@ const LedControl = () => {
         </Text>
 
         {Platform.OS === "web" ? ( 
-
+          <View >
           <Slider
             key={forceUpdateRed}
             progress={progressRed}
@@ -186,11 +186,25 @@ const LedControl = () => {
             steps={5}
             snapToStep={true}
             theme={{
-              maximumTrackTintColor: '#E0E0E0', // background track color
-              minimumTrackTintColor: "red", // <- blue track
-              thumbTintColor: "red" // <- blue thumb
+              maximumTrackTintColor: '#E0E0E0',
+              minimumTrackTintColor: "red",
+              thumbTintColor: 'red',    
+              bubbleBackgroundColor: 'black',
+              thumbStyle: {
+                width: 24,
+                height: 24,
+                borderRadius: 12,
+                backgroundColor: 'black',            // just to be safe, override directly
+              },
             }}
+            sliderHeight={20}
+            markWidth={10}
+            thumbWidth={35}
+            bubbleWidth={10}
+            marksStyle={styles.mark}
+            sliderColor="red"
           />
+          </View>
         ) : (
           <Slider
             minimumValue={0}
@@ -256,6 +270,10 @@ const LedControl = () => {
               minimumTrackTintColor: "green", // <- blue track
               thumbTintColor: "green" // <- blue thumb
             }}
+             sliderHeight={20}
+            markWidth={10}
+            thumbWidth={35}
+            bubbleWidth={10}
             
           />
         )}
@@ -304,6 +322,10 @@ const LedControl = () => {
               minimumTrackTintColor: "blue", // <- blue track
               thumbTintColor: "blue" // <- blue thumb
             }}
+             sliderHeight={20}
+            markWidth={10}
+            thumbWidth={35}
+            bubbleWidth={10}
           />
         )}
       </View>
@@ -353,6 +375,10 @@ const LedControl = () => {
               minimumTrackTintColor: PRIMARY_COLOR, // <- blue track
               thumbTintColor: SECONDARY_COLOR // <- blue thumb
             }}
+             sliderHeight={20}
+            markWidth={10}
+            thumbWidth={35}
+            bubbleWidth={10}
           />        
           )}
       </View>
@@ -412,14 +438,15 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   button: {
+    flex: 1,
     paddingVertical: 12,
     paddingHorizontal: 30,
     borderRadius: 30,
     alignItems: "center",
     justifyContent: "center",
     marginTop: 12,
-    maxWidth: 500,
-
+    // maxWidth: 500,
+    width: 500
   },
   onButton: {
     backgroundColor: "#f44336",
@@ -445,6 +472,16 @@ const styles = StyleSheet.create({
   recordingButton: {
     backgroundColor: "#D32F2F",
   },
+ slider: {
+    flex: 1,                    // take up full screen space
+    justifyContent: 'center',  // vertical centering
+    alignItems: 'center',      // horizontal centering
+    padding: 16, 
+ },
+  mark: {
+    color:"black",
+    backgroundColor:"black"
+  }
 });
 
 export default LedControl;
