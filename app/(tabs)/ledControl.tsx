@@ -133,33 +133,38 @@ const LedControl = () => {
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       <View style={styles.card}>
+      <View style={styles.buttonContainer}>
         <TouchableOpacity
           style={[
-            styles.button,
+            Platform.OS=='web' ? styles.buttonWeb : styles.button,
             brightness > 1 || red || blue || green ? styles.onButton : styles.offButton,
           ]}
           onPress={() => turnOnOFF(brightness > 1 || red || blue || green ? 1 : 255)}
         >
-          <Text style={styles.buttonText}>
+      <Text style={Platform.OS=='web' ? styles.buttonTextWeb : styles.buttonText}>
             {brightness > 1 || red || blue || green ? "Turn OFF" : "Turn ON"}
           </Text>
         </TouchableOpacity>
       </View>
-
-      <View style={styles.card}>
-        <Text style={styles.label}>Choose Room: {selectedRoom}</Text>
-        <Picker
-          selectedValue={selectedRoom}
-          onValueChange={(itemValue) => {setRoom(itemValue); rerender();}}
-          style={styles.picker}
-        >
-          <Picker.Item label="Living Room" value="living" />
-          <Picker.Item label="Bedroom" value="bedroom" />
-        </Picker>
       </View>
 
       <View style={styles.card}>
-        <Text style={styles.label}>
+      <Text style={Platform.OS=='web' ? styles.labelWeb : styles.label}>
+          Choose Room: {selectedRoom.charAt(0).toUpperCase() + selectedRoom.slice(1)}</Text>
+          <View style={{"alignItems": "center"}}>
+            <Picker
+              selectedValue={selectedRoom}
+              onValueChange={(itemValue) => {setRoom(itemValue); rerender();}}
+              style={Platform.OS=='web' ? styles.pickerWeb : styles.picker}
+            >
+              <Picker.Item label="Living Room" value="living"/>
+              <Picker.Item label="Bedroom" value="bedroom" />
+            </Picker>
+        </View>
+      </View>
+
+      <View style={styles.card}>
+      <Text style={Platform.OS=='web' ? styles.labelWeb : styles.label}>
           Red:
           {selectedRoom == "living" ? red : redBedroom}
         </Text>
@@ -226,7 +231,7 @@ const LedControl = () => {
           />
         )}
 
-        <Text style={styles.label}>
+        <Text style={Platform.OS=='web' ? styles.labelWeb : styles.label}>
           Green: {selectedRoom == "living" ? green : greenBedroom}
         </Text>
         {Platform.OS !== "web" ? (
@@ -278,7 +283,7 @@ const LedControl = () => {
           />
         )}
 
-        <Text style={styles.label}>
+        <Text style={Platform.OS=='web' ? styles.labelWeb : styles.label}>
           Blue: {selectedRoom == "living" ? blue : blueBedroom}
         </Text>
         {Platform.OS !== "web" ? (
@@ -331,7 +336,8 @@ const LedControl = () => {
       </View>
 
       <View style={styles.card}>
-        <Text style={styles.label}>Brightness: {selectedRoom == "living" ? brightness : brightnessBedroom}</Text>
+      <Text style={Platform.OS=='web' ? styles.labelWeb : styles.label}>
+          Brightness: {selectedRoom == "living" ? brightness : brightnessBedroom}</Text>
         {Platform.OS !== "web" ? (
           <Slider
             minimumValue={1}
@@ -383,6 +389,7 @@ const LedControl = () => {
           )}
       </View>
 
+      {Platform.OS!=='web' ? 
       <View style={styles.card}>
         <TouchableOpacity
           style={[
@@ -401,6 +408,9 @@ const LedControl = () => {
           {recorder.isRecording ? "Listening..." : "Tap to Speak"}
         </Text>
       </View>
+      :
+      <></>
+      }
     </ScrollView>
   );
 };
@@ -430,12 +440,37 @@ const styles = StyleSheet.create({
     marginVertical: 8,
     textAlign: "center",
   },
+  labelWeb: {
+    fontSize: 40,
+    fontWeight: "500",
+    color: "#1E1E1E",
+    marginVertical: 8,
+    textAlign: "center",
+  },
   picker: {
-    height: 50,
-    width: "100%",
+    height: 60,
+    width: "70%",
     backgroundColor: "#E3F2FD",
     borderRadius: 12,
     marginTop: 10,
+    alignItems:"center",
+    justifyContent: "center",
+    fontSize: 16
+  },
+    pickerWeb: {
+    height: 50,
+    width: "50%",
+    backgroundColor: "#E3F2FD",
+    borderRadius: 12,
+    marginTop: 10,
+    alignItems:"center",
+    justifyContent: "center",
+    fontSize: 30
+
+  },
+  buttonContainer:{
+    alignItems: "center",
+    justifyContent: "center",
   },
   button: {
     flex: 1,
@@ -444,7 +479,17 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 12,
+    // marginTop: 12,
+    width: 200,
+  },
+  buttonWeb: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 30,
+    borderRadius: 30,
+    alignItems: "center",
+    justifyContent: "center",
+    // marginTop: 12,
     // maxWidth: 500,
     width: 500
   },
@@ -457,6 +502,11 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "#fff",
     fontSize: 16,
+    fontWeight: "bold",
+  },
+   buttonTextWeb: {
+    color: "#fff",
+    fontSize: 30,
     fontWeight: "bold",
   },
   micButton: {

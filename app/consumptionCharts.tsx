@@ -133,6 +133,7 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   ScrollView,
+  Platform,
 } from 'react-native';
 import { LineChart } from 'react-native-chart-kit';
 import { SERVER_IP } from '@/constants';
@@ -199,7 +200,7 @@ export default function ConsumptionChart({ device }: ConsumptionChartProps) {
 
   return (
     <View style={styles.chartWrapper}>
-      <Text style={styles.chartTitle}>Energy Consumption</Text>
+      <Text style={Platform.OS == 'web' ? styles.chartTitleWeb : styles.chartTitle}>Energy Consumption</Text>
 
       {/* Time Range Selector */}
       <View style={styles.rangeSelector}>
@@ -213,8 +214,10 @@ export default function ConsumptionChart({ device }: ConsumptionChartProps) {
             onPress={() => setRange(value)}
           >
             <Text
-              style={[
-                styles.rangeButtonText,
+              style={[ Platform.OS != 'web' ? 
+                styles.rangeButtonText
+                :
+                styles.rangeButtonTextWeb,
                 range === value && styles.rangeButtonTextSelected,
               ]}
             >
@@ -264,6 +267,11 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginBottom: 16,
   },
+  chartTitleWeb: {
+    fontSize: 40,
+    fontWeight: '600',
+    marginBottom: 16,
+  },
   chart: {
     borderRadius: 12,
   },
@@ -310,6 +318,10 @@ const styles = StyleSheet.create({
   rangeButtonText: {
     color: '#007AFF',
     fontSize: 14,
+  },
+  rangeButtonTextWeb: {
+    color: '#007AFF',
+    fontSize: 35,
   },
   rangeButtonTextSelected: {
     color: '#ffffff',

@@ -65,10 +65,6 @@ const AirQuality = () => {
     };
 
     mqttClient.current.registerMessageCallback(messageHandler);
-
-    // return () => {
-    //   mqttClient.current?.disconnect(); // Disconnect on component unmount
-    // };
   }, []);
 
 
@@ -150,25 +146,25 @@ const AirQuality = () => {
   return (
       <ScrollView>
       <View style={styles.container}>
-      <Text style={styles.header}>Air Quality</Text>
+      <Text style={Platform.OS == 'web' ? styles.headerWeb : styles.header}>Air Quality</Text>
       <View style={styles.dataContainer}>
-        <Text style={styles.label}>🌡️ Temperature: {!isNaN(currentTemperature) ? `${currentTemperature} °C` : 'Loading...'}</Text>
-        <Text style={styles.label}>💧 Humidity: {currentHumidity !== null && !isNaN(currentHumidity) ? `${currentHumidity} %` : 'Loading...'}</Text>
-        <Text style={styles.label}>🌍 Pressure: {currentPressure !== null && !isNaN(currentPressure)? `${currentPressure} hPa` : 'Loading...'}</Text>
-        <Text style={styles.label}>🔥 Gas Resistance: {currentGasResistance !== null && !isNaN(currentGasResistance)? `${currentGasResistance} kΩ` : 'Loading...'}</Text>
-        <Text style={styles.label}>🌎 AQI: {aqi !== null && !isNaN(aqi) ? `${aqi.toFixed(2)}` : 'Calculating...'}</Text>
+        <Text style={Platform.OS == 'web' ? styles.labelWeb : styles.label}>🌡️ Temperature: {!isNaN(currentTemperature) ? `${currentTemperature} °C` : 'Loading...'}</Text>
+        <Text style={Platform.OS == 'web' ? styles.labelWeb : styles.label}>💧 Humidity: {currentHumidity !== null && !isNaN(currentHumidity) ? `${currentHumidity} %` : 'Loading...'}</Text>
+        <Text style={Platform.OS == 'web' ? styles.labelWeb : styles.label}>🌍 Pressure: {currentPressure !== null && !isNaN(currentPressure)? `${currentPressure} hPa` : 'Loading...'}</Text>
+        <Text style={Platform.OS == 'web' ? styles.labelWeb : styles.label}>🔥 Gas Resistance: {currentGasResistance !== null && !isNaN(currentGasResistance)? `${currentGasResistance} kΩ` : 'Loading...'}</Text>
+        <Text style={Platform.OS == 'web' ? styles.labelWeb : styles.label}>🌎 AQI: {aqi !== null && !isNaN(aqi) ? `${aqi.toFixed(2)}` : 'Calculating...'}</Text>
       </View>
       <View style={styles.tipContainer}>
-        <Text style={styles.tipHeader}>🌿 Air Quality Tips</Text>
-        <Text style={styles.tip}>{airQualityTip}</Text>
+        <Text style={Platform.OS == 'web' ? styles.tipHeaderWeb : styles.tipHeader}>🌿 Air Quality Tips</Text>
+        <Text style={Platform.OS == 'web' ? styles.tipWeb : styles.tip }>{airQualityTip}</Text>
       </View>
       <View style={styles.tipContainer}>
-        <Text style={styles.tipHeader}>💧 Humidity Tips</Text>
-        <Text style={styles.tip}>{humidityTip}</Text>
+        <Text style={Platform.OS == 'web' ? styles.tipHeaderWeb : styles.tipHeader}>💧 Humidity Tips</Text>
+        <Text style={Platform.OS == 'web' ? styles.tipWeb : styles.tip }>{humidityTip}</Text>
       </View>
 
       <View style={styles.section}>
-          <Text style={styles.header}>Fan Control</Text>
+          <Text style={Platform.OS == 'web' ? styles.headerWeb : styles.header}>Fan Control</Text>
       
             <TouchableOpacity
               style={[styles.heaterButton, fanState > 1 ? styles.onButton : styles.offButton]}
@@ -179,7 +175,7 @@ const AirQuality = () => {
       </View>
 
       <View style={styles.section}>
-              <Text style={styles.header}>Set Desired Temperature</Text>
+              <Text style={Platform.OS == 'web' ? styles.headerWeb : styles.header}>Set Desired Temperature</Text>
               <View style={styles.buttonContainer}>
                 <TouchableOpacity 
                 style={[styles.tempButton,
@@ -190,7 +186,7 @@ const AirQuality = () => {
                   <Text style={styles.buttonText}>-</Text>
                 </TouchableOpacity>
       
-                <Text style={styles.desiredTemp}>{desiredTemperatureFan}°C</Text>
+                <Text style={Platform.OS == 'web' ? (styles.desiredTemp, styles.desiredTempWeb) : styles.desiredTemp}>{desiredTemperatureFan}°C</Text>
       
                 <TouchableOpacity 
                 style={[
@@ -211,11 +207,15 @@ const AirQuality = () => {
 const styles = StyleSheet.create({
     container: { flex: 1, padding: 20, backgroundColor: '#f5f5f5' },
     header: { fontSize: 22, fontWeight: 'bold', marginBottom: 10, textAlign: 'center' },
+    headerWeb: { fontSize: 40, fontWeight: 'bold', marginBottom: 10, textAlign: 'center' },
     dataContainer: { backgroundColor: '#fff', padding: 15, borderRadius: 10, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 5, elevation: 3 },
     label: { fontSize: 18, marginBottom: 8 },
+    labelWeb: { fontSize: 30, marginBottom: 8 },
     tipContainer: { backgroundColor: '#e3f2fd', padding: 15, borderRadius: 10, marginTop: 15 },
     tipHeader: { fontSize: 18, fontWeight: 'bold', marginBottom: 5 },
+    tipHeaderWeb: { fontSize: 30, fontWeight: 'bold', marginBottom: 5 },
     tip: { fontSize: 16 },
+    tipWeb: { fontSize: 25 },
     heaterButton: {
       paddingVertical: 15,
       paddingHorizontal: 40,
@@ -252,10 +252,18 @@ const styles = StyleSheet.create({
       marginRight: 10,
       marginLeft: 10
     },
+    desiredTempWeb:{
+      fontSize: 36,
+      color: '#333',
+      fontWeight: 'bold',
+      marginVertical: 5,
+      marginRight: 30,
+      marginLeft: 30
+    },
     buttonContainer: {
       flexDirection: 'row',
       justifyContent: 'space-between',
-      width: '60%',
+      // width: '60%',
       marginVertical: 20,
     },
     button: {
@@ -278,7 +286,7 @@ const styles = StyleSheet.create({
       height: 60,
       borderRadius: 30,
       alignItems: 'center',
-      justifyContent: 'center',
+      // justifyContent: 'center',
       elevation: 4,
     },
 

@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, ScrollView} from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Platform} from 'react-native';
 import { Picker } from "@react-native-picker/picker";
 import React, { useEffect, useRef, useState } from 'react';
 import { MQTTClientSingleton } from '@/services/mqttService';
@@ -181,9 +181,6 @@ const Consumption = () => {
    
     mqttClient.current.registerMessageCallback(messageHandler);
 
-    // return () => {
-    //   mqttClient.current?.disconnect(); // Clean up on component unmount
-    // };
   }, [selectedESP]);
 
 
@@ -195,35 +192,39 @@ const Consumption = () => {
   return (
     <ScrollView>
     <View style={styles.container}>
-      <Text style={styles.header}>Consumption</Text>
+      <Text style={Platform.OS == "web" ? styles.headerWeb : styles.header}>Consumption</Text>
 
       {/* Dropdown to select ESP */}
+      <View style={Platform.OS=='web' ? styles.containerWeb : ""}>
       <Picker
         selectedValue={selectedESP}
         onValueChange={(value) => setSelectedESP(value)}
-        style={styles.picker}
+        style={Platform.OS == "web" ? styles.pickerWeb : styles.picker}
       >
         <Picker.Item label="ESP1" value="ESP1" />
         <Picker.Item label="ESP2" value="ESP2" /> 
         <Picker.Item label="Solar Panel" value="Solar Panel" />
       </Picker>
+      </View>
 
-      <View style={styles.dataContainer}>
-        <Text style={styles.label}>
+      <View style={styles.wrapper}>
+      <View style={Platform.OS == 'web' ? styles.dataContainerWeb : styles.dataContainer}>
+        {/* <Text style={Platform.OS=='web' ? styles.labelWeb : styles.label}>
           Shunt Voltage: {currentShuntVoltage !== null ? `${currentShuntVoltage} mV` : 'Loading...'}
-        </Text>
-        <Text style={styles.label}>
+        </Text> */}
+        {/* <Text style={Platform.OS=='web' ? styles.labelWeb : styles.label}>
           Bus Voltage: {currentBusVoltage !== null ? `${currentBusVoltage} V` : 'Loading...'}
+        </Text> */}
+        <Text style={Platform.OS=='web' ? styles.labelWeb : styles.label}>
+          Instant Current: {currentCurrent !== null ? `${currentCurrent} mA` : 'Loading...'}
         </Text>
-        <Text style={styles.label}>
-          Current: {currentCurrent !== null ? `${currentCurrent} mA` : 'Loading...'}
+        <Text style={Platform.OS=='web' ? styles.labelWeb : styles.label}>
+          Instant Load Voltage: {currentLoadVoltage !== null ? `${currentLoadVoltage} V` : 'Loading...'}
         </Text>
-        <Text style={styles.label}>
-          Load Voltage: {currentLoadVoltage !== null ? `${currentLoadVoltage} V` : 'Loading...'}
+        <Text style={Platform.OS=='web' ? styles.labelWeb : styles.label}>
+          Instant Power: {currentPower !== null ? `${currentPower} mW` : 'Loading...'}
         </Text>
-        <Text style={styles.label}>
-          Power: {currentPower !== null ? `${currentPower} mW` : 'Loading...'}
-        </Text>
+      </View>
       </View>
 
       {selectedESP == 'Solar Panel' ?  
@@ -240,8 +241,12 @@ const Consumption = () => {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20, backgroundColor: '#f5f5f5' },
+  containerWeb: { flex: 1, padding: 20, backgroundColor: '#f5f5f5', justifyContent:"center", alignContent:"center", alignItems:"center" },
   header: { fontSize: 22, fontWeight: 'bold', marginBottom: 10, textAlign: 'center' },
-  picker: { height: 50, width: '100%', marginBottom: 15 },
+  headerWeb: { fontSize: 40, fontWeight: 'bold',  textAlign: 'center' },
+  picker: { height: 50, width: '100%', marginBottom: 15, alignItems:"center" },
+  pickerWeb: { height: 50, width: '30%', marginBottom: 20, fontSize: 40, marginTop:20 },
+
   dataContainer: {
     backgroundColor: '#fff',
     padding: 15,
@@ -249,9 +254,30 @@ const styles = StyleSheet.create({
     shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowRadius: 5,
-    elevation: 3
+    elevation: 3,
+    // justifyContent: "center",
+    // alignContent:"center",
+    // alignItems:"center" ,
+    width:"90%"
   },
+
+  dataContainerWeb: {
+    backgroundColor: '#fff',
+    padding: 15,
+    borderRadius: 10,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 3,
+    width: "30%"
+  },
+
   label: { fontSize: 18, marginBottom: 8 },
+  labelWeb: { fontSize: 40, marginBottom: 8 },
+
+  wrapper:{   
+    alignItems:"center" ,
+  }
 });
 
 export default Consumption;

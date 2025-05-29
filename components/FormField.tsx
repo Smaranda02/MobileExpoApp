@@ -39,18 +39,22 @@
 
 
 import React from 'react';
-import { View, Text, TextInput, StyleSheet } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Platform } from 'react-native';
 
 const FormField = ({ title, value, handleChangeText, keyboardType, otherStyles, style, secureTextEntry = false }: any) => {
   return (
-    <View style={[styles.container, otherStyles && { marginBottom: 16 }]}>
-      <Text style={styles.label}>{title}</Text>
+    <View style={ Platform.OS =='web' ? 
+      [styles.containerWeb, otherStyles && { marginBottom: 16 }]
+     : [styles.container, otherStyles && { marginBottom: 16 }]}>
+      <Text style={Platform.OS =='web' ? styles.labelWeb : styles.label}>
+        {title}
+      </Text>
       <TextInput
         value={value}
         onChangeText={handleChangeText}
         keyboardType={keyboardType}
         secureTextEntry={secureTextEntry}
-        style={[styles.input, style]} // allow external style override
+        style={Platform.OS == 'web' ? [styles.inputWeb, style] : [styles.input, style]} // allow external style override
       />
     </View>
   );
@@ -60,10 +64,22 @@ const styles = StyleSheet.create({
   container: {
     marginBottom: 12,
   },
+  containerWeb: {
+    marginBottom: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   label: {
     marginBottom: 6,
     color: '#003366',
     fontWeight: '500',
+    fontSize: 16
+  },
+  labelWeb: {
+    marginBottom: 6,
+    color: '#003366',
+    fontWeight: '500',
+    fontSize: 30
   },
   input: {
     borderWidth: 1,
@@ -72,6 +88,16 @@ const styles = StyleSheet.create({
     padding: 12,
     fontSize: 16,
     backgroundColor: 'white',
+  },
+   inputWeb: {
+    borderWidth: 1,
+    borderColor: '#ccc', // neutral color
+    borderRadius: 10,
+    padding: 12,
+    fontSize: 16,
+    backgroundColor: 'white',
+    alignItems: "center",
+    width: 800
   },
 });
 

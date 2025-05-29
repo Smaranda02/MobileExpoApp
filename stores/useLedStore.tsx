@@ -85,6 +85,8 @@ export const useLedStore = create<LedState>((set, get) => ({
       if (automaticControl) {
         setTimeout(() => triggerSunriseEvent(automaticControl), delay);
       }
+
+      console.log("DA : ", automaticControl);
     });
   },
 

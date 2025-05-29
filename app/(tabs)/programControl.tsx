@@ -5,6 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Button,
+  Platform,
 } from "react-native";
 
 import { useCurtainsStore } from "@/stores/useCurtainsStore";
@@ -44,34 +45,38 @@ useEffect(() => {
         ]}
         onPress={() => handleCurtainsStatePublish(curtainsState ? 0 : 255)}
       >
-        <Text style={styles.buttonText}>
+        <Text style={Platform.OS == "web" ? styles.buttonTextWeb : styles.buttonText}>
           {curtainsState ? "CURTAINS DOWN" : "CURTAINS UP"}
         </Text>
       </TouchableOpacity>
     </View>
 
     {/* Sunrise Auto-Off Control */}
-    <View style={styles.card}>
-      <Text style={styles.label}>Turn off lights automatically at sunrise?</Text>
+    <View style={Platform.OS == "web" ? styles.cardContainer : ""}>
+    <View  style={Platform.OS == "web" ? styles.cardWeb : styles.card}  >
+      <Text style={Platform.OS =="web" ? styles.labelWeb : styles.label}>
+        Turn off lights automatically at sunrise?
+      </Text>
 
       <Picker
         selectedValue={automaticControl}
         onValueChange={(itemValue) => setAutomaticControl(itemValue)}
-        style={styles.picker}
+        style={Platform.OS=='web' ? styles.pickerWeb : styles.picker}
         dropdownIconColor="#333" 
         mode="dropdown"
-
       >
         <Picker.Item label="NO" value={false} />
         <Picker.Item label="YES" value={true} />
       </Picker>
 
       {automaticControl && (
-        <Text style={styles.sunriseText}>
+        <Text 
+        style={Platform.OS !="web" ? styles.sunriseText : styles.sunriseTextWeb}>
           🌅 Lights scheduled to turn off at:{" "}
-          <Text style={{ fontWeight: "600" }}>{sunriseStr || "Loading..."}</Text>
+          <Text style={Platform.OS == "web" ? {fontSize: 25} : { fontWeight: "600" }}>{sunriseStr || "Loading..."}</Text>
         </Text>
       )}
+    </View>
     </View>
   </View>
 )};
@@ -84,6 +89,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     padding: 20,
   },
+  
+  cardContainer:{
+  flex: 1,
+  justifyContent:"center",
+  alignItems: 'center',
+  backgroundColor: '#F0F4F8', // optional
+},
   card: {
   backgroundColor: "#FFFFFF",
   borderRadius: 16,
@@ -94,7 +106,28 @@ const styles = StyleSheet.create({
   shadowOpacity: 0.1,
   shadowRadius: 8,
   elevation: 4,
+  alignItems:"center",
+  alignContent: "center",
+  width: "95%",
+
 },
+
+cardWeb :{
+  backgroundColor: "#FFFFFF",
+  borderRadius: 16,
+  padding: 20,
+  marginBottom: 20,
+  shadowColor: "#000",
+  shadowOffset: { width: 0, height: 4 },
+  shadowOpacity: 0.1,
+  shadowRadius: 8,
+  elevation: 4,
+  alignItems:"center",
+  alignContent: "center",
+  marginTop: 50,
+  width: "50%",
+},
+
 label: {
   fontSize: 17,
   fontWeight: "500",
@@ -102,14 +135,13 @@ label: {
   marginVertical: 8,
   textAlign: "center"
 },
-// picker: {
-//   height: 50,
-//   width: "100%",
-//   backgroundColor: "#E3F2FD",
-//   borderRadius: 12,
-//   marginTop: 10,
-// },
-
+labelWeb: {
+  fontSize: 40,
+  fontWeight: "500",
+  color: "#1E1E1E",
+  marginVertical: 8,
+  textAlign: "center"
+},
 picker: {
   height: 50,
   width: "75%",
@@ -119,6 +151,17 @@ picker: {
   paddingHorizontal: 12,
   color: "#1E1E1E", // dark text
   fontSize: 18,
+  justifyContent: "center",
+},
+
+pickerWeb: {
+  height: 50,
+  width: 300,
+  backgroundColor: "#F0F4F8", // softer background
+  marginTop: 30,
+  paddingHorizontal: 12,
+  color: "#1E1E1E", // dark text
+  fontSize: 30,
   justifyContent: "center",
 },
   status: {
@@ -131,6 +174,7 @@ picker: {
     borderRadius: 25,
     marginVertical: 10,
     width: "80%",
+    maxWidth: 500,
     alignItems: "center",
   },
   onButton: {
@@ -144,9 +188,20 @@ picker: {
     fontSize: 18,
     fontWeight: "bold",
   },
+   buttonTextWeb: {
+    color: "#fff",
+    fontSize: 40,
+    fontWeight: "bold",
+  },
   sunriseText: {
   marginTop: 12,
   fontSize: 17,
+  color: "#333",
+  textAlign: "center",
+},
+sunriseTextWeb: {
+  marginTop: 40,
+  fontSize: 25,
   color: "#333",
   textAlign: "center",
 }

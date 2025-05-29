@@ -6,7 +6,8 @@ import {
   TouchableOpacity,
   Alert,
   StyleSheet,
-  ActivityIndicator
+  ActivityIndicator,
+  Platform
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link, router } from 'expo-router';
@@ -51,8 +52,8 @@ export default function SignUp() {
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
         <View style={styles.inner}>
-          <Text style={styles.title}>Create Account</Text>
-          <Text style={styles.subtitle}>Sign up to join Stupid Home</Text>
+          <Text style={Platform.OS == 'web' ? styles.titleWeb : styles.title}>Create Account</Text>
+          <Text style={Platform.OS == 'web' ? styles.subtitleWeb : styles.subtitle}>Sign up to join Stupid Home</Text>
 
           <FormField
             title="Username"
@@ -78,22 +79,23 @@ export default function SignUp() {
             secureTextEntry
           />
 
+          <View style={Platform.OS == 'web' ? styles.wrapper : ""}>
           <TouchableOpacity
             onPress={handleSignUp}
             disabled={isSubmitting}
-            style={styles.button}
-          >
+            style={Platform.OS == 'web' ? styles.buttonWeb : styles.button}>
             {isSubmitting ? (
               <ActivityIndicator color="#fff" />
             ) : (
               <Text style={styles.buttonText}>Sign Up</Text>
             )}
           </TouchableOpacity>
+          </View>
 
           <View style={styles.footer}>
-            <Text style={styles.footerText}>Already have an account?</Text>
+            <Text style={Platform.OS == 'web' ? styles.footerTextWeb : styles.footerText}>Already have an account?</Text>
             <Link href="/sign-in">
-              <Text style={styles.signInText}>Sign In</Text>
+              <Text style={Platform.OS == 'web' ? styles.signInTextWeb : styles.signInText}>Sign In</Text>
             </Link>
           </View>
         </View>
@@ -155,5 +157,42 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: '#0055cc',
+  },
+   titleWeb: {
+    fontSize: 65,
+    color: '#003366',
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  subtitleWeb: {
+    fontSize: 35,
+    color: '#335577',
+    textAlign: 'center',
+    marginBottom: 75,
+  },
+   footerTextWeb: {
+    fontSize: 25,
+    color: '#335577',
+    marginRight: 4,
+  },
+   signInTextWeb: {
+    fontSize: 25,
+    fontWeight: '600',
+    color: '#0055cc',
+  },
+   wrapper: {
+    justifyContent: "center",
+    alignItems:"center",
+  },
+   buttonWeb: {
+    backgroundColor: '#007AFF',
+    padding: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginTop: 20,
+    justifyContent: "center",
+    alignContent: "center",
+    width: 400
   },
 });

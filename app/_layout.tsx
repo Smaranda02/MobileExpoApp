@@ -1,8 +1,9 @@
-import { Stack } from "expo-router";
+import { router, Stack } from "expo-router";
 import React from "react";
-import { StyleSheet } from "react-native";
+import { Platform, StyleSheet, TouchableOpacity } from "react-native";
 import { SessionProvider } from "@/services/authContext";
 import { DARKER_PRIMARY, PRIMARY_COLOR } from "@/constants";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function RootLayout() {
   return (
@@ -16,10 +17,16 @@ export default function RootLayout() {
           options={{
             headerShown: true, 
             title: 'Back to Home',
-            headerTitleStyle: {
-              fontSize: 24,
-              color: DARKER_PRIMARY,
-            },
+            headerTitleStyle: Platform.OS == 'web' ? 
+            {fontSize: 35, color: DARKER_PRIMARY, } 
+            :
+            {fontSize: 24, color: DARKER_PRIMARY,} , 
+            headerLeft: 
+            () => (
+            <TouchableOpacity onPress={() => router.push('/firstPage')} style={{ paddingHorizontal: 15 }}>
+              <Ionicons name="arrow-back" size={24} color={DARKER_PRIMARY} />
+            </TouchableOpacity>
+            )      
           }} 
         />
       </Stack>

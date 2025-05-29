@@ -9,6 +9,7 @@ import {
   SafeAreaView,
   ScrollView,
   Alert,
+  Platform,
 } from "react-native";
 import { Link, Redirect, router } from "expo-router";
 import CustomButton from "@/components/CustomButton";
@@ -106,39 +107,39 @@ export default function FirstPage() {
   return (
     <SafeAreaView style={styles.safeArea}>
 
-      <View style={styles.topRight}>
+      <View style={Platform.OS ? styles.topRightWeb : styles.topRight}>
             <TouchableOpacity onPress={signOut}>
-              <Text style={styles.logoutText}>Logout</Text>
+              <Text style={Platform.OS=='web' ? styles.logoutTextWeb : styles.logoutText}>Logout</Text>
             </TouchableOpacity>
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <Text style={styles.title}>
+        <Text style={Platform.OS =="web" ? styles.titleWeb : styles.title}>
           Welcome to {"\n"} Smart Home Controller
         </Text>
 
         <View style={styles.linkGroup}>
-          <Link href="/ledControl" style={styles.link}>
+          <Link href="/ledControl" style={Platform.OS =="web" ? styles.linkWeb : styles.link}>
             LED Control
           </Link>
-          <Link href="/temperature" style={styles.link}>
+          <Link href="/temperature" style={Platform.OS =="web" ? styles.linkWeb : styles.link}>
             Temperature Control
           </Link>
-          <Link href="/socket" style={styles.link}>
+          <Link href="/socket" style={Platform.OS =="web" ? styles.linkWeb : styles.link}>
             Smart Socket Control
           </Link>
-          <Link href="/airQuality" style={styles.link}>
+          <Link href="/airQuality" style={Platform.OS =="web" ? styles.linkWeb : styles.link}>
             Air Quality
           </Link>
-          <Link href="/consumption" style={styles.link}>
+          <Link href="/consumption" style={Platform.OS =="web" ? styles.linkWeb : styles.link}>
             Consumption
           </Link>
-          <Link href="/programControl" style={styles.link}>
+          <Link href="/programControl" style={Platform.OS =="web" ? styles.linkWeb : styles.link}>
             Curtains & LED Schedule
           </Link>
         </View>
 
-        <Text style={styles.status}>
+        <Text style={Platform.OS == "web" ? styles.statusWeb : styles.status}>
           MQTT : {connected ? "✅ Connected" : "🔄 Connecting..."}
         </Text>
 
@@ -150,6 +151,7 @@ export default function FirstPage() {
           isLoading={false}
         /> */}
 
+        {Platform.OS != "web" ? 
         <View style={styles.container}>
           <TouchableOpacity
             style={[
@@ -174,6 +176,9 @@ export default function FirstPage() {
           </Text>
           
         </View>
+        :
+        <></>
+        }
       </ScrollView>
 
       <StatusBar style="light" />
@@ -203,6 +208,14 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
     marginTop: 30,
   },
+  titleWeb: {
+    fontSize: 50,
+    fontWeight: "bold",
+    textAlign: "center",
+    paddingBottom: 20,
+    marginTop: 50,
+    marginBottom: 50
+  },
   linkGroup: {
     width: "100%",
     maxWidth: 500,
@@ -220,8 +233,25 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#357ABD",
   },
+  linkWeb: {
+    fontSize: 40,
+    color: "white",
+    backgroundColor: "#4a90e2",
+    // backgroundColor: "#007AFF",
+    paddingVertical: 10,
+    textAlign: "center",
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#357ABD",
+  },
   status: {
     fontSize: 16,
+    fontWeight: "600",
+    color: "#333",
+    textAlign: "center",
+  },
+  statusWeb: {
+    fontSize: 30,
     fontWeight: "600",
     color: "#333",
     textAlign: "center",
@@ -262,8 +292,27 @@ const styles = StyleSheet.create({
   padding: 4
   },
 
+  topRightWeb: {
+  position: 'absolute',
+  top: 20,
+  right: 20,
+  zIndex: 999,
+  borderWidth: 1,
+  borderColor: PRIMARY_COLOR,
+  backgroundColor: DARKER_PRIMARY,
+  borderRadius: 5,
+  padding: 4
+  },
+
   logoutText: {
   fontSize: 16,
+  color: 'white',
+  fontWeight: 'bold',
+  },
+
+
+  logoutTextWeb: {
+  fontSize: 40,
   color: 'white',
   fontWeight: 'bold',
   },
