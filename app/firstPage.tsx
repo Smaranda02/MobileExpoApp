@@ -14,20 +14,32 @@ import {
 import { Link, Redirect, router } from "expo-router";
 import CustomButton from "@/components/CustomButton";
 import { StatusBar } from "expo-status-bar";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAudioRecorder, RecordingPresets, AudioModule } from "expo-audio";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import VoiceProcessingService from "@/services/voiceProcessingService";
 import { useAudioService } from "@/services/audioService";
-import { PRIMARY_COLOR, SECONDARY_COLOR, DARKER_PRIMARY } from "@/constants";
+import { PRIMARY_COLOR, SECONDARY_COLOR, DARKER_PRIMARY, BACKGROUND_COLOR, LIGHTER_PRIMARY, LIGHTER_PRIMARY2, MQTT_TOPIC_UPDATE_RESPONSE_1, MQTT_TOPIC_UPDATE_RESPONSE_2 } from "@/constants";
 import { useMqttStore } from "@/stores/useMqttStore";
 import { useSession } from "@/services/authContext";
+import { MQTTPublisher } from "@/services/mqttPublisher";
+import { MQTTClientSingleton } from "@/services/mqttService";
+
+import { useCurtainsStore } from "@/stores/useCurtainsStore";
+import { useLedStore } from "@/stores/useLedStore";
+import { useTemperatureStore } from "@/stores/useTemperatureStore";
 
 export default function FirstPage() {
   const [recording, setRecording] = useState<boolean>(false);
   const audioRecorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
   const { connected } = useMqttStore();
   const [recordingEntities, setRecordingEntities] = useState("");
+  const mqttClient = useRef<MQTTClientSingleton | null>(null); // Use useRef for MQTT client
+
+  const {updateColorsFromMCU} = useLedStore();
+  const {updateFanStateFromMCU, updateHeaterStateFromMCU} = useTemperatureStore();
+  const {updateCurtainsStateFromMCU} = useCurtainsStore();
+
 
   const { recorder, startRecording, stopRecording, transcription, entities } =
     useAudioService();
@@ -41,7 +53,34 @@ export default function FirstPage() {
         Alert.alert("Microphone permission denied");
       }
     })();
+
+    MQTTPublisher.publishStateUpdateRequest();
   }, []);
+
+   useEffect(() => {
+    mqttClient.current = MQTTClientSingleton.getInstance();
+
+     // Handle incoming messages
+     const messageHandler =  (topic: string, payload: string) => {
+          const data = JSON.parse(payload); // Deserialize JSON
+
+          if(topic === MQTT_TOPIC_UPDATE_RESPONSE_1){
+             console.log(data);
+             updateColorsFromMCU(data.redLiving, data.greenLiving, data.blueLiving, data.brightnessLiving, "bathroom");
+             updateColorsFromMCU(data.redBedroom, data.greenBedroom, data.blueBedroom, data.brightnessBedroom, "bedroom");
+             updateFanStateFromMCU(data.fan);
+          }
+          else if(topic == MQTT_TOPIC_UPDATE_RESPONSE_2){
+             updateHeaterStateFromMCU(data.heater);
+             updateCurtainsStateFromMCU(data.curtains)
+          }
+    };
+
+    mqttClient.current.registerMessageCallback(messageHandler);
+  }, []);
+
+
+
 
   const processTranscription = (result_entities: any) => {
     try {
@@ -107,7 +146,7 @@ export default function FirstPage() {
   return (
     <SafeAreaView style={styles.safeArea}>
 
-      <View style={Platform.OS ? styles.topRightWeb : styles.topRight}>
+      <View style={Platform.OS == 'web' ? styles.topRightWeb : styles.topRight}>
             <TouchableOpacity onPress={signOut}>
               <Text style={Platform.OS=='web' ? styles.logoutTextWeb : styles.logoutText}>Logout</Text>
             </TouchableOpacity>
@@ -141,6 +180,8 @@ export default function FirstPage() {
 
         <Text style={Platform.OS == "web" ? styles.statusWeb : styles.status}>
           MQTT : {connected ? "✅ Connected" : "🔄 Connecting..."}
+                    {/* MQTT : ✅ Connected */}
+
         </Text>
 
         {/* <CustomButton
@@ -189,7 +230,7 @@ export default function FirstPage() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#b3bffd",
+    backgroundColor: BACKGROUND_COLOR,
   },
   container: {
     alignItems: "center",
@@ -200,6 +241,7 @@ const styles = StyleSheet.create({
     padding: 20,
     alignItems: "center",
     justifyContent: "center",
+    marginTop: 50
   },
   title: {
     fontSize: 24,
@@ -225,24 +267,23 @@ const styles = StyleSheet.create({
   link: {
     fontSize: 16,
     color: "white",
-    backgroundColor: "#4a90e2",
-    // backgroundColor: "#007AFF",
+    backgroundColor: PRIMARY_COLOR,
     paddingVertical: 10,
     textAlign: "center",
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "#357ABD",
+    borderColor: DARKER_PRIMARY,
   },
   linkWeb: {
     fontSize: 40,
     color: "white",
-    backgroundColor: "#4a90e2",
+    backgroundColor: PRIMARY_COLOR,
     // backgroundColor: "#007AFF",
     paddingVertical: 10,
     textAlign: "center",
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "#357ABD",
+    borderColor: DARKER_PRIMARY,
   },
   status: {
     fontSize: 16,
@@ -271,7 +312,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   recordingButton: {
-    backgroundColor: "#d50000",
+    backgroundColor: "#c1121f",
   },
   label: {
     fontSize: 16,
@@ -282,14 +323,14 @@ const styles = StyleSheet.create({
   },
   topRight: {
   position: 'absolute',
-  top: 20,
+  top: 30,
   right: 20,
   zIndex: 999,
   borderWidth: 1,
   borderColor: PRIMARY_COLOR,
-  backgroundColor: DARKER_PRIMARY,
+  backgroundColor: LIGHTER_PRIMARY2,
   borderRadius: 5,
-  padding: 4
+  padding: 8,
   },
 
   topRightWeb: {
@@ -298,22 +339,22 @@ const styles = StyleSheet.create({
   right: 20,
   zIndex: 999,
   borderWidth: 1,
-  borderColor: PRIMARY_COLOR,
-  backgroundColor: DARKER_PRIMARY,
+  borderColor: LIGHTER_PRIMARY,
+  backgroundColor: LIGHTER_PRIMARY2,
   borderRadius: 5,
   padding: 4
   },
 
   logoutText: {
   fontSize: 16,
-  color: 'white',
+  color: "white",
   fontWeight: 'bold',
   },
 
 
   logoutTextWeb: {
   fontSize: 40,
-  color: 'white',
+  color: DARKER_PRIMARY,
   fontWeight: 'bold',
   },
 

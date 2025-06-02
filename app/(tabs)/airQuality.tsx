@@ -4,7 +4,7 @@ import { View, Text, Button, TextInput, StyleSheet, Dimensions, TouchableOpacity
 import React, { useEffect, useRef, useState } from 'react'
 import { MQTTClientSingleton } from '@/services/mqttService';
 import { useTemperatureStore } from '@/stores/useTemperatureStore';
-import { MIN_FAN_TEMP, MQTT_TOPIC_AIR_QUALITY, MQTT_TOPIC_WATER, MIN_WATER_THRESHOLD } from '@/constants';
+import { MIN_FAN_TEMP, MQTT_TOPIC_AIR_QUALITY, MQTT_TOPIC_WATER, MIN_WATER_THRESHOLD, LIGHTER_PRIMARY, LIGHTER_PRIMARY2, BACKGROUND_COLOR, PRIMARY_COLOR, DARKER_PRIMARY } from '@/constants';
 const AirQuality = () => {
 
   const [connected, setConnected] = useState<boolean>(false);
@@ -146,7 +146,7 @@ const AirQuality = () => {
   return (
       <ScrollView>
       <View style={styles.container}>
-      <Text style={Platform.OS == 'web' ? styles.headerWeb : styles.header}>Air Quality</Text>
+      <Text style={Platform.OS == 'web' ? styles.titleWeb : styles.title}>Air Quality</Text>
       <View style={styles.dataContainer}>
         <Text style={Platform.OS == 'web' ? styles.labelWeb : styles.label}>🌡️ Temperature: {!isNaN(currentTemperature) ? `${currentTemperature} °C` : 'Loading...'}</Text>
         <Text style={Platform.OS == 'web' ? styles.labelWeb : styles.label}>💧 Humidity: {currentHumidity !== null && !isNaN(currentHumidity) ? `${currentHumidity} %` : 'Loading...'}</Text>
@@ -175,7 +175,7 @@ const AirQuality = () => {
       </View>
 
       <View style={styles.section}>
-              <Text style={Platform.OS == 'web' ? styles.headerWeb : styles.header}>Set Desired Temperature</Text>
+              <Text style={Platform.OS == 'web' ? styles.headerTempWeb : styles.headerTemp}>Set Desired Temperature</Text>
               <View style={styles.buttonContainer}>
                 <TouchableOpacity 
                 style={[styles.tempButton,
@@ -205,16 +205,20 @@ const AirQuality = () => {
 };
 
 const styles = StyleSheet.create({
-    container: { flex: 1, padding: 20, backgroundColor: '#f5f5f5' },
-    header: { fontSize: 22, fontWeight: 'bold', marginBottom: 10, textAlign: 'center' },
-    headerWeb: { fontSize: 40, fontWeight: 'bold', marginBottom: 10, textAlign: 'center' },
-    dataContainer: { backgroundColor: '#fff', padding: 15, borderRadius: 10, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 5, elevation: 3 },
-    label: { fontSize: 18, marginBottom: 8 },
+    container: { flex: 1, padding: 20, backgroundColor: BACKGROUND_COLOR },
+    header: { fontSize: 22, fontWeight: 'bold', marginBottom: 10, textAlign: 'center', marginTop: 30, color: DARKER_PRIMARY },
+    title: { fontSize: 22, fontWeight: 'bold', marginBottom: 10, textAlign: 'center', color: DARKER_PRIMARY },
+    headerWeb: { fontSize: 40, fontWeight: 'bold', marginBottom: 10, textAlign: 'center', color: DARKER_PRIMARY },
+    headerTemp: { fontSize: 22, fontWeight: 'bold', marginBottom: 10, textAlign: 'center', color: DARKER_PRIMARY},
+    headerTempWeb: { fontSize: 40, fontWeight: 'bold', marginBottom: 10, textAlign: 'center', color: DARKER_PRIMARY },
+    titleWeb: { fontSize: 40, fontWeight: 'bold', marginBottom: 10, textAlign: 'center', color: DARKER_PRIMARY },
+    dataContainer: { backgroundColor: "#e2fdff", padding: 15, borderRadius: 10, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 5, elevation: 3 },
+    label: { fontSize: 18, marginBottom: 8, color: DARKER_PRIMARY },
     labelWeb: { fontSize: 30, marginBottom: 8 },
-    tipContainer: { backgroundColor: '#e3f2fd', padding: 15, borderRadius: 10, marginTop: 15 },
-    tipHeader: { fontSize: 18, fontWeight: 'bold', marginBottom: 5 },
+    tipContainer: { backgroundColor: "#e2fdff", padding: 15, borderRadius: 10, marginTop: 15 },
+    tipHeader: { fontSize: 18, fontWeight: 'bold', marginBottom: 5, color: DARKER_PRIMARY},
     tipHeaderWeb: { fontSize: 30, fontWeight: 'bold', marginBottom: 5 },
-    tip: { fontSize: 16 },
+    tip: { fontSize: 16},
     tipWeb: { fontSize: 25 },
     heaterButton: {
       paddingVertical: 15,
@@ -230,10 +234,10 @@ const styles = StyleSheet.create({
       fontWeight: 'bold',
     },
   onButton: {
-    backgroundColor: '#f44336',
+    backgroundColor: "#c1121f",
   },
   offButton: {
-    backgroundColor: '#4caf50',
+    backgroundColor: "#679436",
   },
     section: {
       marginBottom: 40,
@@ -246,7 +250,7 @@ const styles = StyleSheet.create({
     },
     desiredTemp: {
       fontSize: 36,
-      color: '#333',
+      color: DARKER_PRIMARY,
       fontWeight: 'bold',
       marginVertical: 5,
       marginRight: 10,
@@ -254,7 +258,7 @@ const styles = StyleSheet.create({
     },
     desiredTempWeb:{
       fontSize: 36,
-      color: '#333',
+      color: DARKER_PRIMARY,
       fontWeight: 'bold',
       marginVertical: 5,
       marginRight: 30,
@@ -286,7 +290,7 @@ const styles = StyleSheet.create({
       height: 60,
       borderRadius: 30,
       alignItems: 'center',
-      // justifyContent: 'center',
+      justifyContent: 'center',
       elevation: 4,
     },
 

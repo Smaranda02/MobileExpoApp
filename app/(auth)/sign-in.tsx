@@ -13,6 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link, router } from 'expo-router';
 import FormField from '@/components/FormField';
 import { useSession } from '@/services/authContext';
+import { BACKGROUND_COLOR, DARKER_PRIMARY, PRIMARY_COLOR } from '@/constants';
 
 export default function SignIn() {
   const { signIn } = useSession();
@@ -94,7 +95,7 @@ export default function SignIn() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#eaf4ff',
+    backgroundColor: BACKGROUND_COLOR,
   },
   scrollContainer: {
     flexGrow: 1,
@@ -121,7 +122,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 16,
-    color: '#335577',
+    color: PRIMARY_COLOR,
     textAlign: 'center',
     marginBottom: 24,
   },
@@ -132,14 +133,14 @@ const styles = StyleSheet.create({
     marginBottom: 75,
   },
   button: {
-    backgroundColor: '#007AFF',
+    backgroundColor: PRIMARY_COLOR,
     padding: 16,
     borderRadius: 12,
     alignItems: 'center',
     marginTop: 20,
   },
   buttonWeb: {
-    backgroundColor: '#007AFF',
+    backgroundColor: PRIMARY_COLOR,
     padding: 16,
     borderRadius: 12,
     alignItems: 'center',
@@ -172,13 +173,13 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: 14,
-    color: '#335577',
+    color: PRIMARY_COLOR,
     marginRight: 4,
   },
   signUpText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#0055cc',
+    color: DARKER_PRIMARY,
   },
 
   signUpTextWeb: {

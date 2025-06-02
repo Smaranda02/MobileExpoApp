@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { MQTTPublisher} from '../services/mqttPublisher';
 import { getSunrise, getSunriseTime, triggerSunriseEvent } from '@/utilsFunctions';
-export type Room = 'living' | 'bedroom'; 
+export type Room = 'bathroom' | 'bedroom'; 
 
 type LedState = {
   red: number;
@@ -19,6 +19,7 @@ type LedState = {
   setRoom: (room: Room) => void;
   setAutomaticControl: (isAutomated: boolean) => void;
   fetchSunriseTime: () => Promise<void>;
+  updateColorsFromMCU: (r: number, g: number, b: number, brightness: number, room: string) => void;
 };
 
 
@@ -32,7 +33,7 @@ export const useLedStore = create<LedState>((set, get) => ({
   brightness: 1,
   brightnessBedroom: 1,
   automaticControl: false,
-  selectedRoom: 'living',
+  selectedRoom: 'bathroom',
   sunriseTime: null,
 
   setColor: (r, g, b, brightness) => {
@@ -44,7 +45,7 @@ export const useLedStore = create<LedState>((set, get) => ({
     const { red, green, blue, brightness: oldBrightness } = get();
     const { redBedroom, greenBedroom, blueBedroom, brightnessBedroom: oldBrightnessBedroom } = get();
 
-    if (selectedRoom == 'living') {
+    if (selectedRoom == 'bathroom') {
       if(r === red && g === green && b === blue && brightness === oldBrightness) return; 
       set({ red: r, green: g, blue: b, brightness });
     }
@@ -64,6 +65,20 @@ export const useLedStore = create<LedState>((set, get) => ({
           selectedRoom: get().selectedRoom
         })    
     },
+  
+
+    updateColorsFromMCU: (r, g, b, brightness, room) => {
+    if (room == 'bathroom') {
+      set({ red: r, green: g, blue: b, brightness });
+    }
+
+    if (room == 'bedroom') {
+      set({ redBedroom: r, greenBedroom: g, blueBedroom: b, brightnessBedroom: brightness });
+    }
+    // console.log("Living: ", get().red,get().green,get().blue);
+    // console.log("Bedroom: ", get().redBedroom,get().greenBedroom,get().blueBedroom);
+
+  },
   
   setRoom: (room: Room) => set({ selectedRoom: room }),
 
@@ -98,5 +113,7 @@ export const useLedStore = create<LedState>((set, get) => ({
       console.error("Failed to fetch sunrise time:", error);
     }
   },
+
+
 
 }));

@@ -136,7 +136,7 @@ import {
   Platform,
 } from 'react-native';
 import { LineChart } from 'react-native-chart-kit';
-import { SERVER_IP } from '@/constants';
+import { DARKER_PRIMARY, LIGHTER_PRIMARY, LIGHTER_PRIMARY2, PRIMARY_COLOR, SECONDARY_COLOR, SERVER_IP } from '@/constants';
 import { format, parseISO } from 'date-fns';
 
 const screenWidth = Dimensions.get('window').width;
@@ -266,11 +266,13 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '600',
     marginBottom: 16,
+    color: DARKER_PRIMARY
   },
   chartTitleWeb: {
     fontSize: 40,
     fontWeight: '600',
     marginBottom: 16,
+    color: DARKER_PRIMARY
   },
   chart: {
     borderRadius: 12,
@@ -308,19 +310,22 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#007AFF',
+    backgroundColor: LIGHTER_PRIMARY,
     marginHorizontal: 5,
     marginVertical: 4,
+    borderColor: PRIMARY_COLOR
   },
   rangeButtonSelected: {
-    backgroundColor: '#007AFF',
+    backgroundColor: PRIMARY_COLOR,
+    borderColor: DARKER_PRIMARY
+
   },
   rangeButtonText: {
-    color: '#007AFF',
+    color: DARKER_PRIMARY,
     fontSize: 14,
   },
   rangeButtonTextWeb: {
-    color: '#007AFF',
+    color: DARKER_PRIMARY,
     fontSize: 35,
   },
   rangeButtonTextSelected: {

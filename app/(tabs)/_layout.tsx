@@ -3,6 +3,7 @@ import { Tabs,Redirect } from 'expo-router'
 import Profile from '../profile'
 import { FontAwesome } from '@expo/vector-icons'
 import { Platform } from 'react-native'
+import { DARKER_PRIMARY, LIGHTER_PRIMARY, PRIMARY_COLOR, SECONDARY_COLOR } from '@/constants'
 
 
 const TabsLayout = () => {
@@ -10,8 +11,8 @@ const TabsLayout = () => {
       <Tabs
         screenOptions={{
           tabBarShowLabel: true,
-          tabBarActiveTintColor: 'blue',
-          tabBarInactiveTintColor: 'black',
+          tabBarActiveTintColor: DARKER_PRIMARY,
+          tabBarInactiveTintColor: PRIMARY_COLOR,
           tabBarStyle: {
             backgroundColor: 'white',
             borderTopWidth: 1,

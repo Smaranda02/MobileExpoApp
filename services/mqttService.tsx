@@ -12,8 +12,12 @@ import {
   MQTT_TOPIC_LIVING,
   MQTT_TOPIC_SOLAR_PANEL,
   MQTT_TOPIC_TEMPERATURE,
+  MQTT_TOPIC_UPDATE_REQUEST_2,
+  MQTT_TOPIC_UPDATE_REQUEST_1,
   MQTT_TOPIC_WATER,
   MQTT_USERNAME,
+  MQTT_TOPIC_UPDATE_RESPONSE_1,
+  MQTT_TOPIC_UPDATE_RESPONSE_2,
 } from '@/constants';
 
 import { useMqttStore } from '@/stores/useMqttStore';
@@ -45,7 +49,6 @@ class MQTTClientSingleton {
       console.log('Connected to MQTT Broker');
       this.connected = true;
       useMqttStore.getState().setMqttState(true);
-
       this.subscribeToTopics();
     });
 
@@ -82,6 +85,10 @@ class MQTTClientSingleton {
       MQTT_TOPIC_SOLAR_PANEL,
       MQTT_TOPIC_CURTAINS,
       MQTT_TOPIC_FAN,
+      MQTT_TOPIC_UPDATE_REQUEST_2,
+      MQTT_TOPIC_UPDATE_REQUEST_1,
+      MQTT_TOPIC_UPDATE_RESPONSE_1,
+      MQTT_TOPIC_UPDATE_RESPONSE_2
     ];
 
     topics.forEach((topic) => {

@@ -17,7 +17,7 @@ import VoiceProcessingService from "@/services/voiceProcessingService";
 import { useLedStore } from "@/stores/useLedStore";
 import { Room } from "@/stores/useLedStore";
 import { useAudioService } from "@/services/audioService";
-import { PRIMARY_COLOR, SECONDARY_COLOR, DARKER_PRIMARY } from "@/constants";
+import { PRIMARY_COLOR, SECONDARY_COLOR, DARKER_PRIMARY, LIGHTER_PRIMARY, LIGHTER_PRIMARY2, BACKGROUND_COLOR } from "@/constants";
 import { useSharedValue, withTiming } from "react-native-reanimated";
 let Slider;
 
@@ -79,7 +79,8 @@ const LedControl = () => {
 
 
   useEffect(() => {
-  if (selectedRoom === "living") {
+    console.log("Use effect called");
+  if (selectedRoom === "bathroom") {
     progressRed.value = red;
     progressGreen.value = green;
     progressBlue.value = blue;
@@ -91,12 +92,17 @@ const LedControl = () => {
     progressBrightness.value = brightnessBedroom;
   }
 
+      console.log(red, green, blue);
+
   setForceUpdateRed((prev) => prev + 1);
   setForceUpdateGreen((prev) => prev + 1);
   setForceUpdateBlue((prev) => prev + 1);
-  selectedRoom === "living"
+  selectedRoom === "bathroom"
     ? setForceUpdateBrightness((prev) => prev + 1)
     : setForceUpdateBrightnessBedroom((prev) => prev + 1);
+
+
+        console.log(red, green, blue);
 
 }, [selectedRoom, red, green, blue, brightness, redBedroom, greenBedroom, blueBedroom, brightnessBedroom]);
 
@@ -122,11 +128,16 @@ const LedControl = () => {
   };
 
   const rerender = () => {
+    console.log("Rerender called");
+
+    console.log("Living: ", red,green,blue);
+    console.log("Bedroom: ", redBedroom,greenBedroom,blueBedroom);
+
     if(Platform.OS === 'web'){
       setForceUpdateRed((prev) => prev + 1);
       setForceUpdateBlue((prev) => prev + 1);
       setForceUpdateGreen((prev) => prev + 1);
-      selectedRoom == "living" ? setForceUpdateBrightness((prev) => prev + 1) : setForceUpdateBrightnessBedroom((prev) => prev + 1)
+      selectedRoom == "bathroom" ? setForceUpdateBrightness((prev) => prev + 1) : setForceUpdateBrightnessBedroom((prev) => prev + 1)
     }
   }
 
@@ -137,12 +148,19 @@ const LedControl = () => {
         <TouchableOpacity
           style={[
             Platform.OS=='web' ? styles.buttonWeb : styles.button,
-            brightness > 1 || red || blue || green ? styles.onButton : styles.offButton,
+             selectedRoom == "bathroom" ? 
+             (red || blue || green) ?  styles.onButton : styles.offButton 
+             : (redBedroom || blueBedroom || greenBedroom) ? styles.onButton : styles.offButton ,
           ]}
-          onPress={() => turnOnOFF(brightness > 1 || red || blue || green ? 1 : 255)}
+          onPress={() => turnOnOFF(selectedRoom == "bathroom" ? 
+            (red || blue || green ? 1 : 255) 
+            : (redBedroom || blueBedroom || greenBedroom ? 1 : 255))}
         >
       <Text style={Platform.OS=='web' ? styles.buttonTextWeb : styles.buttonText}>
-            {brightness > 1 || red || blue || green ? "Turn OFF" : "Turn ON"}
+            { 
+             selectedRoom == "bathroom" ? 
+             (red || blue || green) ? "Turn OFF" : "Turn ON" 
+             : (redBedroom || blueBedroom || greenBedroom) ? "Turn OFF" : "Turn ON"  }
           </Text>
         </TouchableOpacity>
       </View>
@@ -157,7 +175,7 @@ const LedControl = () => {
               onValueChange={(itemValue) => {setRoom(itemValue); rerender();}}
               style={Platform.OS=='web' ? styles.pickerWeb : styles.picker}
             >
-              <Picker.Item label="Living Room" value="living"/>
+              <Picker.Item label="Bathroom" value="bathroom"/>
               <Picker.Item label="Bedroom" value="bedroom" />
             </Picker>
         </View>
@@ -166,7 +184,7 @@ const LedControl = () => {
       <View style={styles.card}>
       <Text style={Platform.OS=='web' ? styles.labelWeb : styles.label}>
           Red:
-          {selectedRoom == "living" ? red : redBedroom}
+          {selectedRoom == "bathroom" ? red : redBedroom}
         </Text>
 
         {Platform.OS === "web" ? ( 
@@ -177,7 +195,7 @@ const LedControl = () => {
             minimumValue={min}
             maximumValue={max}
             onValueChange={(value: number) => 
-                {selectedRoom === "living"
+                {selectedRoom === "bathroom"
                 ? setColor(Math.round(value), green, blue, brightness)
                 : setColor(
                     Math.round(value),
@@ -192,8 +210,8 @@ const LedControl = () => {
             snapToStep={true}
             theme={{
               maximumTrackTintColor: '#E0E0E0',
-              minimumTrackTintColor: "red",
-              thumbTintColor: 'red',    
+              minimumTrackTintColor: "#c1121f",
+              thumbTintColor: '#c1121f',    
               bubbleBackgroundColor: 'black',
               thumbStyle: {
                 width: 24,
@@ -214,9 +232,9 @@ const LedControl = () => {
           <Slider
             minimumValue={0}
             maximumValue={255}
-            value={selectedRoom == "living" ? red : redBedroom}
+            value={selectedRoom == "bathroom" ? red : redBedroom}
             onValueChange={(value: number) =>
-              selectedRoom === "living"
+              selectedRoom === "bathroom"
                 ? setColor(Math.round(value), green, blue, brightness)
                 : setColor(
                     Math.round(value),
@@ -226,21 +244,22 @@ const LedControl = () => {
                   )
             }
             step={55}
-            minimumTrackTintColor="#EF5350"
+            minimumTrackTintColor="#c1121f"
+            thumbTintColor="#c1121f"
             stepMarked="true"
           />
         )}
 
         <Text style={Platform.OS=='web' ? styles.labelWeb : styles.label}>
-          Green: {selectedRoom == "living" ? green : greenBedroom}
+          Green: {selectedRoom == "bathroom" ? green : greenBedroom}
         </Text>
         {Platform.OS !== "web" ? (
           <Slider
             minimumValue={0}
             maximumValue={255}
-            value={selectedRoom == "living" ? green : greenBedroom}
+            value={selectedRoom == "bathroom" ? green : greenBedroom}
             onValueChange={(value: any) =>
-              selectedRoom === "living"
+              selectedRoom === "bathroom"
                 ? setColor(red, Math.round(value), blue, brightness)
                 : setColor(
                     redBedroom,
@@ -250,7 +269,8 @@ const LedControl = () => {
                   )
             }
             step={55}
-            minimumTrackTintColor="#66BB6A"
+            minimumTrackTintColor="#679436"
+            thumbTintColor="#679436"
           />
         ) : (
            <Slider
@@ -259,7 +279,7 @@ const LedControl = () => {
             minimumValue={min}
             maximumValue={max}
             onValueChange={(value: number) =>
-              selectedRoom === "living"
+              selectedRoom === "bathroom"
                 ? setColor(red, Math.round(value), blue, brightness)
                 : setColor(
                     redBedroom,
@@ -271,9 +291,9 @@ const LedControl = () => {
             steps={5}
             snapToStep={true}
             theme={{
-              maximumTrackTintColor: '#E0E0E0', // background track color
-              minimumTrackTintColor: "green", // <- blue track
-              thumbTintColor: "green" // <- blue thumb
+              maximumTrackTintColor: '#E0E0E0', 
+              minimumTrackTintColor: "#679436", 
+              thumbTintColor: "#679436" 
             }}
              sliderHeight={20}
             markWidth={10}
@@ -284,15 +304,15 @@ const LedControl = () => {
         )}
 
         <Text style={Platform.OS=='web' ? styles.labelWeb : styles.label}>
-          Blue: {selectedRoom == "living" ? blue : blueBedroom}
+          Blue: {selectedRoom == "bathroom" ? blue : blueBedroom}
         </Text>
         {Platform.OS !== "web" ? (
           <Slider
             minimumValue={0}
             maximumValue={255}
-            value={selectedRoom == "living" ? blue : blueBedroom}
+            value={selectedRoom == "bathroom" ? blue : blueBedroom}
             onValueChange={(value: any) =>
-              selectedRoom === "living"
+              selectedRoom === "bathroom"
                 ? setColor(red, green, Math.round(value), brightness)
                 : setColor(
                     redBedroom,
@@ -302,7 +322,8 @@ const LedControl = () => {
                   )
             }
             step={55}
-            minimumTrackTintColor={PRIMARY_COLOR}
+            minimumTrackTintColor="#01497c"
+            thumbTintColor="#01497c"
           />
         ) : (
           <Slider
@@ -311,7 +332,7 @@ const LedControl = () => {
             minimumValue={min}
             maximumValue={max}
              onValueChange={(value: any) =>
-              selectedRoom === "living"
+              selectedRoom === "bathroom"
                 ? setColor(red, green, Math.round(value), brightness)
                 : setColor(
                     redBedroom,
@@ -324,8 +345,8 @@ const LedControl = () => {
             snapToStep={true}
             theme={{
               maximumTrackTintColor: '#E0E0E0', // background track color
-              minimumTrackTintColor: "blue", // <- blue track
-              thumbTintColor: "blue" // <- blue thumb
+              minimumTrackTintColor: "#01497c", // <- blue track
+              thumbTintColor: "#01497c" // <- blue thumb
             }}
              sliderHeight={20}
             markWidth={10}
@@ -337,15 +358,15 @@ const LedControl = () => {
 
       <View style={styles.card}>
       <Text style={Platform.OS=='web' ? styles.labelWeb : styles.label}>
-          Brightness: {selectedRoom == "living" ? brightness : brightnessBedroom}</Text>
+          Brightness: {selectedRoom == "bathroom" ? brightness : brightnessBedroom}</Text>
         {Platform.OS !== "web" ? (
           <Slider
             minimumValue={1}
             maximumValue={255}
             step={51}
-            value={selectedRoom == "living" ? brightness : brightnessBedroom}
+            value={selectedRoom == "bathroom" ? brightness : brightnessBedroom}
             onValueChange={(value: any) =>
-              selectedRoom === "living"
+              selectedRoom === "bathroom"
                 ? setColor(red, green, blue, Math.round(value))
                 : setColor(
                     redBedroom,
@@ -354,18 +375,18 @@ const LedControl = () => {
                     Math.round(value)
                   )
             }
-            minimumTrackTintColor={DARKER_PRIMARY}
-            thumbTintColor={PRIMARY_COLOR}
+            minimumTrackTintColor="#f7c59f"
+            thumbTintColor="#f7c59f"
             style={{ width: "100%" }}
           />
         ) : (
           <Slider
-            key={selectedRoom == "living" ? forceUpdateBrightness : forceUpdateBrightnessBedroom }
+            key={selectedRoom == "bathroom" ? forceUpdateBrightness : forceUpdateBrightnessBedroom }
             progress={progressBrightness}
             minimumValue={min}
             maximumValue={max}
              onValueChange={(value: any) =>
-              selectedRoom === "living"
+              selectedRoom === "bathroom"
                 ? setColor(red, green, blue, Math.round(value))
                 : setColor(
                     redBedroom,
@@ -378,8 +399,8 @@ const LedControl = () => {
             snapToStep={true}
             theme={{
               maximumTrackTintColor: '#E0E0E0', // background track color
-              minimumTrackTintColor: PRIMARY_COLOR, // <- blue track
-              thumbTintColor: SECONDARY_COLOR // <- blue thumb
+              minimumTrackTintColor: "#f7c59f", // <- blue track
+              thumbTintColor: "#f7c59f" // <- blue thumb
             }}
              sliderHeight={20}
             markWidth={10}
@@ -419,10 +440,10 @@ const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
     padding: 20,
-    backgroundColor: "#F0F4F8",
+    backgroundColor: BACKGROUND_COLOR,
   },
   card: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#e2fdff",
     borderRadius: 16,
     padding: 20,
     marginBottom: 20,
@@ -450,12 +471,13 @@ const styles = StyleSheet.create({
   picker: {
     height: 60,
     width: "70%",
-    backgroundColor: "#E3F2FD",
+    backgroundColor: LIGHTER_PRIMARY2,
     borderRadius: 12,
     marginTop: 10,
     alignItems:"center",
     justifyContent: "center",
-    fontSize: 16
+    fontSize: 16,
+    color: "white"
   },
     pickerWeb: {
     height: 50,
@@ -494,10 +516,10 @@ const styles = StyleSheet.create({
     width: 500
   },
   onButton: {
-    backgroundColor: "#f44336",
+    backgroundColor: "#c1121f",
   },
   offButton: {
-    backgroundColor: "#4caf50",
+    backgroundColor: "#679436",
   },
   buttonText: {
     color: "#fff",

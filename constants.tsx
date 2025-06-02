@@ -1,11 +1,14 @@
+export const PRIMARY_COLOR = "#014f86";
+export const LIGHTER_PRIMARY ="#61a5c2";
+export const LIGHTER_PRIMARY2 = "#468faf";
+export const SECONDARY_COLOR = "#89c2d9";
+export const DARKER_PRIMARY = "#012a4a";
+export const BACKGROUND_COLOR = "#a9d6e5"; 
 
-export const PRIMARY_COLOR = "#1E88E5";
-export const SECONDARY_COLOR = "#90CAF9";
-export const DARKER_PRIMARY = "#1565C0";
 
-// export const SERVER_IP = "192.168.1.100";
+export const SERVER_IP = "192.168.1.101";
 // export const SERVER_IP = "192.168.27.206";
-export const SERVER_IP = "192.168.1.100"; //robotics314
+// export const SERVER_IP = "192.168.1.100"; //robotics314
 
 export const LAT = 44.4268;  // Bucharest latitude
 export const LNG = 26.1025;  // Bucharest longitude
@@ -16,9 +19,7 @@ export const MIN_HEATER_TEMP = 18;
 export const MIN_FAN_TEMP = 20;
 export const MAX_FAN_TEMP = 20;
 
-export const MIN_WATER_THRESHOLD  = 2.5;
-
-
+export const MIN_WATER_THRESHOLD  = 3.23;
 export const VALUES_ERROR_MARGIN = 100;
 
 // export const MQTT_SERVER = "ws://192.168.191.78:8080/mqtt"; //smara
@@ -44,3 +45,7 @@ export const MQTT_TOPIC_CONSUMPTION_ESP2 = 'esp32/consumption-esp2'
 export const MQTT_TOPIC_SOLAR_PANEL = 'esp32/solar-panel'
 export const MQTT_TOPIC_CURTAINS = 'esp32/curtains'
 export const MQTT_TOPIC_FAN = 'esp32/fan'
+export const MQTT_TOPIC_UPDATE_REQUEST_1 = 'esp32/update-1'
+export const MQTT_TOPIC_UPDATE_REQUEST_2 = 'esp32/update-2'
+export const MQTT_TOPIC_UPDATE_RESPONSE_1 = "esp32/updateResponse-1"
+export const MQTT_TOPIC_UPDATE_RESPONSE_2 = "esp32/updateResponse-2"

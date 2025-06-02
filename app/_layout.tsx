@@ -16,7 +16,7 @@ export default function RootLayout() {
           name="(tabs)" 
           options={{
             headerShown: true, 
-            title: 'Back to Home',
+            title: 'Home 🏠',
             headerTitleStyle: Platform.OS == 'web' ? 
             {fontSize: 35, color: DARKER_PRIMARY, } 
             :
@@ -26,6 +26,7 @@ export default function RootLayout() {
             <TouchableOpacity onPress={() => router.push('/firstPage')} style={{ paddingHorizontal: 15 }}>
               <Ionicons name="arrow-back" size={24} color={DARKER_PRIMARY} />
             </TouchableOpacity>
+            
             )      
           }} 
         />

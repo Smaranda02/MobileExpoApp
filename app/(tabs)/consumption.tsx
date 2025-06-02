@@ -3,7 +3,7 @@ import { Picker } from "@react-native-picker/picker";
 import React, { useEffect, useRef, useState } from 'react';
 import { MQTTClientSingleton } from '@/services/mqttService';
 import ConsumptionChart from '../consumptionCharts';
-import { SERVER_IP, VALUES_ERROR_MARGIN } from '@/constants';
+import { BACKGROUND_COLOR, DARKER_PRIMARY, LIGHTER_PRIMARY, LIGHTER_PRIMARY2, SERVER_IP, VALUES_ERROR_MARGIN } from '@/constants';
 import { getDate } from 'date-fns';
 import SolarPanelChart from '../solarPanelChart';
 
@@ -131,10 +131,9 @@ const Consumption = () => {
       if (topic !== targetTopic) return; // Ignore other topics
     
       const data = JSON.parse(payload);
-      console.log("Payload: ", payload, selectedESPRef.current);
+      // console.log("Payload: ", payload, selectedESPRef.current);
       const current = parseFloat(data.current);
       //received each minute
-
       
       
       if(selectedESPRef.current == 'ESP1' || selectedESPRef.current == "ESP2"){
@@ -195,7 +194,7 @@ const Consumption = () => {
       <Text style={Platform.OS == "web" ? styles.headerWeb : styles.header}>Consumption</Text>
 
       {/* Dropdown to select ESP */}
-      <View style={Platform.OS=='web' ? styles.containerWeb : ""}>
+      <View style={Platform.OS=='web' ? styles.containerWeb : {alignItems:"center", marginBottom: 20}}>
       <Picker
         selectedValue={selectedESP}
         onValueChange={(value) => setSelectedESP(value)}
@@ -240,24 +239,35 @@ const Consumption = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: '#f5f5f5' },
-  containerWeb: { flex: 1, padding: 20, backgroundColor: '#f5f5f5', justifyContent:"center", alignContent:"center", alignItems:"center" },
-  header: { fontSize: 22, fontWeight: 'bold', marginBottom: 10, textAlign: 'center' },
+  container: { flex: 1, padding: 20, backgroundColor: BACKGROUND_COLOR },
+  containerWeb: { flex: 1, padding: 20, backgroundColor: BACKGROUND_COLOR, justifyContent:"center", alignContent:"center", alignItems:"center" },
+  header: { fontSize: 22, fontWeight: 'bold', marginBottom: 10, textAlign: 'center', color: DARKER_PRIMARY },
   headerWeb: { fontSize: 40, fontWeight: 'bold',  textAlign: 'center' },
-  picker: { height: 50, width: '100%', marginBottom: 15, alignItems:"center" },
+  // picker: { height: 50, width: '100%', marginBottom: 15, alignItems:"center" },
+
+   picker: {
+    height: 60,
+    width: "60%",
+    backgroundColor: LIGHTER_PRIMARY2,
+    borderRadius: 12,
+    marginTop: 10,
+    alignItems:"center",
+    justifyContent: "center",
+    fontSize: 25,
+    color: "white",
+    borderEndEndRadius: 10
+  },
+
   pickerWeb: { height: 50, width: '30%', marginBottom: 20, fontSize: 40, marginTop:20 },
 
   dataContainer: {
-    backgroundColor: '#fff',
+    backgroundColor: '#e2fdff',
     padding: 15,
     borderRadius: 10,
     shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowRadius: 5,
     elevation: 3,
-    // justifyContent: "center",
-    // alignContent:"center",
-    // alignItems:"center" ,
     width:"90%"
   },
 

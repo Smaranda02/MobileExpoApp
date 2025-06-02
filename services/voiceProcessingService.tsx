@@ -36,9 +36,15 @@ class VoiceProcessingService {
     const color = data.color?.toLowerCase();
     const store = useLedStore.getState();
     const location = data.location?.toLowerCase();
+    console.log(location);
 
     if (location) {
-      store.setRoom(location);
+      if(location.includes("bedroom")){
+        store.setRoom(location);
+      }
+      else if(location.includes("bathroom")){
+        store.setRoom("bathroom");
+      }
     }
 
     let r = 0,

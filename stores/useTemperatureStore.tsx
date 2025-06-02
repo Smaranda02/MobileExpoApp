@@ -11,6 +11,8 @@ type TemperatureState = {
   setDesiredTemperatureHeater: (desiredTemperature: number) => void;
   setDesiredTemperatureFan: (desiredTemperatureFan: number) => void;
   setFan: (newFanState: number) => void;
+  updateFanStateFromMCU: (fanState: number) => void;
+  updateHeaterStateFromMCU: (heaterState: number) => void;
 };
 
 
@@ -39,5 +41,13 @@ export const useTemperatureStore = create<TemperatureState>((set, get) => ({
     setFan: (newFanState: number) => {
       set({fanState: newFanState});
       MQTTPublisher.publishFanState(newFanState);
+    },
+
+    updateFanStateFromMCU:(fanState) => {
+      set({fanState: fanState});
+    },
+
+    updateHeaterStateFromMCU:(heaterState) => {
+      set({heaterState: heaterState});
     }
 }));

@@ -1,4 +1,4 @@
-import { MQTT_TOPIC_LIVING, MQTT_TOPIC_BEDROOM, MQTT_TOPIC_CURTAINS, MQTT_TOPIC_TEMPERATURE, MQTT_TOPIC_FAN } from "@/constants";
+import { MQTT_TOPIC_LIVING, MQTT_TOPIC_BEDROOM, MQTT_TOPIC_CURTAINS, MQTT_TOPIC_TEMPERATURE, MQTT_TOPIC_FAN, MQTT_TOPIC_UPDATE_REQUEST_1, MQTT_TOPIC_UPDATE_REQUEST_2 } from "@/constants";
 import { MQTTClientSingleton } from "./mqttService";
 
 const mqttClient = MQTTClientSingleton.getInstance();
@@ -8,16 +8,9 @@ interface LedColorPayload {
     green: number;
     blue: number;
     brightness: number;
-    selectedRoom: "living" | "bedroom";
+    selectedRoom: "bathroom" | "bedroom";
     topic?: string | null;
   }
-
-
-  // interface TemperaturePayload {
-  //   heaterState: number;
-  //   desiredTemperature: number
-  // }
-
 
 export const MQTTPublisher = {
     publishLedColor({
@@ -37,7 +30,7 @@ export const MQTTPublisher = {
       const messageContent = JSON.stringify({ red, green, blue, brightness });
   
       const targetTopic =
-        topic ?? (selectedRoom === "living" ? MQTT_TOPIC_LIVING : MQTT_TOPIC_BEDROOM);
+        topic ?? (selectedRoom === "bathroom" ? MQTT_TOPIC_LIVING : MQTT_TOPIC_BEDROOM);
   
       mqttClient.publishMessage(targetTopic, messageContent);
       // console.log(`Message published: ${messageContent} to topic ${targetTopic}`);
@@ -93,5 +86,16 @@ export const MQTTPublisher = {
       
       const messageContent = JSON.stringify({ fanState: fanState});
       mqttClient.publishMessage(MQTT_TOPIC_FAN, messageContent);
+    },
+
+     publishStateUpdateRequest(){
+      if (!mqttClient.isConnected()) {
+        console.log("Not connected to MQTT broker");
+        return;
+      }
+      
+      const messageContent = JSON.stringify({ updateRequest: true});
+      mqttClient.publishMessage(MQTT_TOPIC_UPDATE_REQUEST_1, messageContent);
+      mqttClient.publishMessage(MQTT_TOPIC_UPDATE_REQUEST_2, messageContent);
     }
   };

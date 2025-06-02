@@ -22,11 +22,11 @@ export default function Index() {
     return <SplashScreen />;
   }
 
-  if (!session && Platform.OS != 'web') {
-    // On web, static rendering will stop here as the user is not authenticated
-    // in the headless Node process that the pages are rendered in.
-    return <Redirect href="/sign-in" />;
-  }
+  // if (!session && Platform.OS != 'web') {
+  //   // On web, static rendering will stop here as the user is not authenticated
+  //   // in the headless Node process that the pages are rendered in.
+  //   return <Redirect href="/sign-in" />;
+  // }
 
 
   return <FirstPage/>;

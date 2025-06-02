@@ -1,10 +1,29 @@
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Platform } from 'react-native';
-import React, { useEffect, useRef, useState } from 'react';
-import { useTemperatureStore } from '@/stores/useTemperatureStore';
-import { MAX_HEATER_TEMP, MIN_HEATER_TEMP, MQTT_TOPIC_TEMPERATURE } from '@/constants';
-import { MQTTClientSingleton } from '@/services/mqttService';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  StyleSheet,
+  Platform,
+} from "react-native";
+import React, { useEffect, useRef, useState } from "react";
+import { useTemperatureStore } from "@/stores/useTemperatureStore";
+import {
+  BACKGROUND_COLOR,
+  DARKER_PRIMARY,
+  LIGHTER_PRIMARY,
+  LIGHTER_PRIMARY2,
+  MAX_HEATER_TEMP,
+  MIN_HEATER_TEMP,
+  MQTT_TOPIC_TEMPERATURE,
+  PRIMARY_COLOR,
+  SECONDARY_COLOR,
+} from "@/constants";
+import { MQTTClientSingleton } from "@/services/mqttService";
 const Temperature = () => {
-  const [currentTemperature, setCurrentTemperature] = useState<number | null>(null);
+  const [currentTemperature, setCurrentTemperature] = useState<number | null>(
+    null
+  );
   const {
     desiredTemperatureHeater,
     heaterState,
@@ -28,11 +47,11 @@ const Temperature = () => {
   }, []);
 
   const increaseTemperature = () => {
-      setDesiredTemperatureHeater(desiredTemperatureHeater + 1);
+    setDesiredTemperatureHeater(desiredTemperatureHeater + 1);
   };
 
   const decreaseTemperature = () => {
-      setDesiredTemperatureHeater(desiredTemperatureHeater - 1);
+    setDesiredTemperatureHeater(desiredTemperatureHeater - 1);
   };
 
   const toggleHeater = () => {
@@ -40,55 +59,82 @@ const Temperature = () => {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.scrollContainer}>
-      <Text style={Platform.OS == 'web'? styles.titleWeb : styles.title}>
-        Heater Control
-      </Text>
+    <ScrollView  contentContainerStyle={styles.scrollContainer}>
 
-      <TouchableOpacity
-        style={[
-          Platform.OS == 'web' ? styles.heaterButtonWeb : styles.heaterButton,
-          heaterState !== 1 ? styles.onButton : styles.offButton,
-        ]}
-        onPress={toggleHeater}
-      >
-        <Text style={ Platform.OS == 'web' ? styles.heaterButtonTextWeb : styles.heaterButtonText}>
-          {heaterState !== 1 ? 'Turn OFF' : 'Turn ON'}
+      <View style={styles.titleContainer}> 
+
+        <Text style={Platform.OS == "web" ? styles.titleWeb : styles.title}>
+          Heater Control
         </Text>
-      </TouchableOpacity>
 
-      <View style={styles.section}>
-        <Text style={ Platform.OS == 'web' ? styles.labelWeb : styles.label}>Current Temperature</Text>
-        <Text style={styles.currentTemp}>
-          {currentTemperature !== null && !isNaN(currentTemperature) ? `${currentTemperature}°C` : 'Loading...'}
-        </Text>
-      </View>
-
-      <View style={styles.section}>
-          <Text style={ Platform.OS == 'web' ? styles.labelWeb : styles.label}>
-              Desired Temperature
-          </Text>
-        <View style={styles.tempControl}>
-          <TouchableOpacity style={[styles.tempButton,
-                          desiredTemperatureHeater - 1 < MIN_HEATER_TEMP && styles.buttonDisabled
+        <TouchableOpacity
+          style={[
+            Platform.OS == "web" ? styles.heaterButtonWeb : styles.heaterButton,
+            heaterState !== 1 ? styles.onButton : styles.offButton,
           ]}
-           onPress={decreaseTemperature}
-           disabled={desiredTemperatureHeater - 1 < MIN_HEATER_TEMP}
-           >
-            <Text style={styles.tempButtonText}>-</Text>
-          </TouchableOpacity>
-          <Text style={ Platform.OS == 'web' ? styles.desiredTempWeb : styles.desiredTemp}>
-            {desiredTemperatureHeater}°C
-            </Text>
-          <TouchableOpacity 
-              style={[styles.tempButton,
-                desiredTemperatureHeater + 1 > MAX_HEATER_TEMP && styles.buttonDisabled
-              ]} 
-            onPress={increaseTemperature}
-            disabled={desiredTemperatureHeater + 1 > MAX_HEATER_TEMP}
+          onPress={toggleHeater}
+        >
+          <Text
+            style={
+              Platform.OS == "web"
+                ? styles.heaterButtonTextWeb
+                : styles.heaterButtonText
+            }
+          >
+            {heaterState !== 1 ? "Turn OFF" : "Turn ON"}
+          </Text>
+        </TouchableOpacity>
+      </View>
+          
+      <View style={styles.temperaturesContainer}>
+        <View style={styles.section}>
+          <Text style={Platform.OS == "web" ? styles.labelWeb : styles.label}>
+            Current Temperature
+          </Text>
+          <Text style={styles.currentTemp}>
+            {currentTemperature !== null && !isNaN(currentTemperature)
+              ? `${currentTemperature}°C`
+              : "Loading..."}
+          </Text>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={Platform.OS == "web" ? styles.labelWeb : styles.label}>
+            Desired Temperature
+          </Text>
+          <View style={styles.tempControl}>
+            <TouchableOpacity
+              style={[
+                styles.tempButton,
+                desiredTemperatureHeater - 1 < MIN_HEATER_TEMP &&
+                  styles.buttonDisabled,
+              ]}
+              onPress={decreaseTemperature}
+              disabled={desiredTemperatureHeater - 1 < MIN_HEATER_TEMP}
             >
-            <Text style={styles.tempButtonText}>+</Text>
-          </TouchableOpacity>
+              <Text style={styles.tempButtonText}>-</Text>
+            </TouchableOpacity>
+            <Text
+              style={
+                Platform.OS == "web"
+                  ? styles.desiredTempWeb
+                  : styles.desiredTemp
+              }
+            >
+              {desiredTemperatureHeater}°C
+            </Text>
+            <TouchableOpacity
+              style={[
+                styles.tempButton,
+                desiredTemperatureHeater + 1 > MAX_HEATER_TEMP &&
+                  styles.buttonDisabled,
+              ]}
+              onPress={increaseTemperature}
+              disabled={desiredTemperatureHeater + 1 > MAX_HEATER_TEMP}
+            >
+              <Text style={styles.tempButtonText}>+</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     </ScrollView>
@@ -101,29 +147,38 @@ const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
     padding: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#f0f4f8',
+    // alignItems: "center",
+    // justifyContent: "center",
+    backgroundColor: BACKGROUND_COLOR,
   },
   title: {
     fontSize: 30,
-    fontWeight: '700',
+    fontWeight: "700",
     marginBottom: 24,
-    color: '#0d47a1',
+    color: DARKER_PRIMARY,
   },
   titleWeb: {
     fontSize: 60,
-    fontWeight: '700',
-    // marginBottom: 200,
+    fontWeight: "700",
     marginBottom: 30,
-    color: '#0d47a1',
+    color: "#0d47a1",
   },
+  titleContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 50
+  },
+  temperaturesContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
   heaterButton: {
     paddingVertical: 15,
     paddingHorizontal: 40,
     borderRadius: 30,
-    width: '80%',
-    alignItems: 'center',
+    width: "80%",
+    alignItems: "center",
     marginBottom: 30,
     elevation: 3,
   },
@@ -133,81 +188,81 @@ const styles = StyleSheet.create({
     paddingHorizontal: 40,
     borderRadius: 30,
     width: 500,
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 30,
     elevation: 3,
-    fontSize: 30
+    fontSize: 30,
   },
-  onButton: {
-    backgroundColor: '#f44336',
+   onButton: {
+    backgroundColor: "#c1121f",
   },
   offButton: {
-    backgroundColor: '#4caf50',
+    backgroundColor: "#679436",
   },
   heaterButtonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 20,
-    fontWeight: '600',
+    fontWeight: "600",
   },
-   heaterButtonTextWeb: {
-    color: '#fff',
+  heaterButtonTextWeb: {
+    color: "#fff",
     fontSize: 30,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   section: {
     marginBottom: 32,
-    alignItems: 'center',
+    alignItems: "center",
   },
   label: {
-    fontSize: 22,
-    fontWeight: '500',
-    color: '#333',
+    fontSize: 30,
+    fontWeight: "700",
+    color: DARKER_PRIMARY,
     marginBottom: 12,
   },
   labelWeb: {
     fontSize: 60,
-    fontWeight: '700',
-    color: '#333',
+    fontWeight: "700",
+    color: DARKER_PRIMARY,
     marginBottom: 12,
-    marginTop: 50
+    marginTop: 50,
   },
   currentTemp: {
     fontSize: 48,
-    fontWeight: 'bold',
-    color: '#ff5722',
+    fontWeight: "bold",
+    color: PRIMARY_COLOR,
   },
   desiredTemp: {
     fontSize: 36,
-    fontWeight: 'bold',
-    color: '#333',
+    fontWeight: "bold",
+    color: PRIMARY_COLOR,
     marginHorizontal: 20,
   },
-   desiredTempWeb: {
+  desiredTempWeb: {
     fontSize: 50,
-    fontWeight: 'bold',
-    color: '#333',
+    fontWeight: "bold",
+    color: SECONDARY_COLOR,
     marginHorizontal: 20,
   },
   tempControl: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
   },
   tempButton: {
-    backgroundColor: '#1976d2',
+    backgroundColor: PRIMARY_COLOR,
     width: 60,
     height: 60,
     borderRadius: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     elevation: 4,
   },
   tempButtonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 32,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
-   buttonDisabled: {
-      backgroundColor: '#B0BEC5', // grayish tone for disabled
-    }
+  buttonDisabled: {
+    backgroundColor: "#B0BEC5", // grayish tone for disabled
+  },
 });
