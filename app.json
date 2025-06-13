@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "StupidHome",
+    "name": "Smart Home",
     "slug": "stupidHome",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/react-logo.png",
+    "icon": "./assets/images/icon.png",
     "scheme": "stupid-home",
     "userInterfaceStyle": "automatic",
     "ios": {

@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Button,
   Platform,
+  ScrollView,
 } from "react-native";
 
 import { useCurtainsStore } from "@/stores/useCurtainsStore";
@@ -33,15 +34,16 @@ const ProgramControl = () => {
   };
 
   return (
+    <ScrollView contentContainerStyle={styles.scrollContainer}>
     <View
       style={{ padding: 16, height: "100%", backgroundColor: BACKGROUND_COLOR }}
     >
       {/* Curtains Toggle Button */}
       <View style={styles.container}>
-        <Text style={styles.title}>Curtains control</Text>
+        <Text style={Platform.OS == 'web' ? styles.titleWeb : styles.title}>Curtains control</Text>
         <TouchableOpacity
           style={[
-            styles.button,
+            Platform.OS == 'web' ? styles.buttonWeb : styles.button,
             curtainsState ? styles.offButton : styles.onButton,
           ]}
           onPress={() => handleCurtainsStatePublish(curtainsState ? 0 : 255)}
@@ -59,7 +61,7 @@ const ProgramControl = () => {
       {/* Sunrise Auto-Off Control */}
       <View>
         <View  style={{alignItems: "center"}}>
-          <Text style={styles.title}>
+          <Text style={Platform.OS == 'web' ? styles.titleWeb : styles.title}>
               Schedule lights
           </Text>
         </View>
@@ -107,12 +109,19 @@ const ProgramControl = () => {
         </View>
       </View>
     </View>
+    </ScrollView>
   );
 };
 
 export default ProgramControl;
 
 const styles = StyleSheet.create({
+   scrollContainer: {
+    flexGrow: 1,
+    padding: 20,
+    backgroundColor: BACKGROUND_COLOR,
+  },
+  
   container: {
     alignItems: "center",
     justifyContent: "center",
@@ -125,10 +134,10 @@ const styles = StyleSheet.create({
     color: DARKER_PRIMARY,
   },
   titleWeb: {
-    fontSize: 60,
+    fontSize: 45,
     fontWeight: "700",
     marginBottom: 30,
-    color: "#0d47a1",
+    color: DARKER_PRIMARY,
   },
   cardContainer: {
     flex: 1,
@@ -162,7 +171,7 @@ const styles = StyleSheet.create({
     elevation: 4,
     alignItems: "center",
     alignContent: "center",
-    marginTop: 50,
+    marginTop: 10,
     width: "50%",
   },
 
@@ -206,6 +215,16 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   button: {
+    paddingVertical: 15,
+    paddingHorizontal: 40,
+    borderRadius: 25,
+    marginVertical: 10,
+    // width: "80%",
+    maxWidth: 500,
+    alignItems: "center",
+    marginBottom: 70,
+  },
+   buttonWeb: {
     paddingVertical: 15,
     paddingHorizontal: 40,
     borderRadius: 25,

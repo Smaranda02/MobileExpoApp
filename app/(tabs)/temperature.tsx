@@ -29,7 +29,20 @@ const Temperature = () => {
     heaterState,
     setHeater,
     setDesiredTemperatureHeater,
+    updateHeaterStateFromMCU
   } = useTemperatureStore();
+
+  const prevTemperatureRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if ((currentTemperature) ) {
+      prevTemperatureRef.current = currentTemperature;
+    }
+  }, [currentTemperature]);
+
+  if(prevTemperatureRef.current){
+    const prevWasNaN = isNaN(prevTemperatureRef.current);
+  }
 
   const mqttClient = useRef<MQTTClientSingleton | null>(null);
 
@@ -38,8 +51,23 @@ const Temperature = () => {
 
     const messageHandler = (topic: string, payload: string) => {
       if (topic === MQTT_TOPIC_TEMPERATURE) {
-        const temperature = parseFloat(payload);
+
+        const data = JSON.parse(payload);
+        console.log(payload);
+        const temperature = parseFloat(data.temperature);
+        // const temperature = parseFloat(data);
+        const heater = parseFloat(data.heater);
+
+        if(temperature != null){
         setCurrentTemperature(temperature);
+        }
+
+        if(!isNaN(heater) &&  heater!= undefined
+        // && heater != heaterState
+        ){
+          updateHeaterStateFromMCU(heater);
+          console.log(heater)
+        }
       }
     };
 
@@ -93,7 +121,7 @@ const Temperature = () => {
           </Text>
           <Text style={styles.currentTemp}>
             {currentTemperature !== null && !isNaN(currentTemperature)
-              ? `${currentTemperature}°C`
+              ? `${currentTemperature }°C`
               : "Loading..."}
           </Text>
         </View>
@@ -161,7 +189,7 @@ const styles = StyleSheet.create({
     fontSize: 60,
     fontWeight: "700",
     marginBottom: 30,
-    color: "#0d47a1",
+    color: DARKER_PRIMARY,
   },
   titleContainer: {
     alignItems: "center",
@@ -240,7 +268,7 @@ const styles = StyleSheet.create({
   desiredTempWeb: {
     fontSize: 50,
     fontWeight: "bold",
-    color: SECONDARY_COLOR,
+    color: PRIMARY_COLOR,
     marginHorizontal: 20,
   },
   tempControl: {

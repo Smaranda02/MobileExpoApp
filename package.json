@@ -51,6 +51,7 @@
     "react-native-svg": "15.11.2",
     "react-native-web": "^0.20.0",
     "reanimated-color-picker": "^3.0.4",
+    "victory-native": "^41.17.3",
     "zustand": "^5.0.4"
   },
   "devDependencies": {

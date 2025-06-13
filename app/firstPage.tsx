@@ -255,7 +255,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "center",
     paddingBottom: 20,
-    marginTop: 50,
+    marginTop: -45,
     marginBottom: 50
   },
   linkGroup: {

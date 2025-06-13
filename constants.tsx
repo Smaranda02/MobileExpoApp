@@ -14,13 +14,17 @@ export const LAT = 44.4268;  // Bucharest latitude
 export const LNG = 26.1025;  // Bucharest longitude
 export const TIMEZONE = 'Europe/Bucharest';
 
-export const MAX_HEATER_TEMP = 26;
+export const MAX_HEATER_TEMP = 35;
 export const MIN_HEATER_TEMP = 18;
 export const MIN_FAN_TEMP = 20;
 export const MAX_FAN_TEMP = 20;
 
-export const MIN_WATER_THRESHOLD  = 3.23;
+export const MIN_WATER_THRESHOLD  = 2.5;
 export const VALUES_ERROR_MARGIN = 100;
+
+//smoke threshold
+export const GAS_THRESHOLD = 300; // Adjust based on environment
+
 
 // export const MQTT_SERVER = "ws://192.168.191.78:8080/mqtt"; //smara
 // export const MQTT_SERVER = "ws://192.168.1.104:8080/mqtt"; //robotics314

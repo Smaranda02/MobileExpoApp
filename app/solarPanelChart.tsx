@@ -7,9 +7,17 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   ScrollView,
+  Platform,
 } from "react-native";
 import { LineChart, BarChart } from "react-native-chart-kit";
-import { SERVER_IP } from "@/constants";
+import {
+  DARKER_PRIMARY,
+  LIGHTER_PRIMARY,
+  LIGHTER_PRIMARY2,
+  PRIMARY_COLOR,
+  SECONDARY_COLOR,
+  SERVER_IP,
+} from "@/constants";
 import { format, parseISO } from "date-fns";
 
 const screenWidth = Dimensions.get("window").width;
@@ -50,23 +58,22 @@ export default function SolarPanelChart() {
       const json = await response.json();
 
       // console.log(json);
-      //   const values = json.map((d: any) => (d.power) / 1000);
-      const values = json.map((d: any) => d.power);
+      // const values = json.map((d: any) => d.power);
+      const values = [0,0, 0,0,0,0, 1.5, 2.5, 2.7, 3, 4.5, 5.7, 6.8, 8.3, 11.5, 10.3, 8.1, 6.5, 5.3, 3, 0, 0, 0]
 
-      // const xLabels = json.map((d: any) => d.readingDate.slice(5)); // MM-DD
-     const xLabels = json.map((d: any, index: number) => {
-      if (range === "day") {
-        const hour = String(index + 1).padStart(2, '0');
-        return `${hour}:00 `;
-      } else {
-        return format(parseISO(d.readingDate), "MMM d"); // "May 14"
-      }
-    });
+      const xLabels = json.map((d: any, index: number) => {
+        if (range === "day") {
+          const hour = String(index).padStart(2, "0");
+          return `${hour}:00 `;
+        } else {
+          return format(parseISO(d.readingDate), "MMM d"); // "May 14"
+        }
+      });
+
       console.log("Labels: ", xLabels);
       setData(values);
       setLabels(xLabels);
     } catch (error) {
-      1;
       console.error("Failed to load data", error);
     }
     setLoading(false);
@@ -79,7 +86,13 @@ export default function SolarPanelChart() {
   return (
     <ScrollView>
       <View style={styles.chartWrapper}>
-        <Text style={styles.chartTitle}>Energy Consumption</Text>
+        <Text
+          style={
+            Platform.OS == "web" ? styles.chartTitleWeb : styles.chartTitle
+          }
+        >
+          Energy Generation
+        </Text>
 
         {/* Time Range Selector */}
         <View style={styles.rangeSelector}>
@@ -94,7 +107,9 @@ export default function SolarPanelChart() {
             >
               <Text
                 style={[
-                  styles.rangeButtonText,
+                  Platform.OS != "web"
+                    ? styles.rangeButtonText
+                    : styles.rangeButtonTextWeb,
                   range === value && styles.rangeButtonTextSelected,
                 ]}
               >
@@ -107,71 +122,62 @@ export default function SolarPanelChart() {
         {loading ? (
           <ActivityIndicator size="large" />
         ) : data.length > 0 ? (
-          // <View>
-
-          //   <View style={styles.yAxisWrapper}>
-          //      <Text style={styles.yAxisLabel}>Power (W)</Text>
-          //   </View>
-
-          //   <ScrollView horizontal>
-          //     <LineChart
-          //       data={{
-          //         labels: range === 'day' ? labels : labels.filter((_, index) => index % 5 === 0),
-          //         datasets: [{ data }],
-          //       }}
-          //       width={Math.max(data.length * 30, screenWidth)}
-          //       height={260}
-          //       chartConfig={chartConfig}
-          //       bezier
-          //       style={styles.chart}
-          //       fromZero
-          //     />
-          //   </ScrollView>
-
-          //   <Text style={styles.xAxisLabel}>{range === 'day' ? "Hour" : "Date"}</Text>
-          // </View>
-          <View>
-
-            {/* <View style={styles.fixedYAxisLabel}>
-              <Text style={styles.yAxisLabel}>Power (W)</Text>
-            </View> */}
-
+          <View style={styles.chartContainer}>
             <ScrollView horizontal>
-              <View >
+              <View>
                 <BarChart
                   data={{
                     labels:
                       range === "day"
-                        ? labels
+                        ? labels.filter((_, index) => index % 3 === 0)
                         : labels.filter((_, index) => index % 5 === 0),
                     datasets: [{ data }],
                   }}
-                  width={Math.max(data.length * 60, screenWidth)}
-                  height={260}
+                  width={Platform.OS == 'web' ? Math.min(data.length * 100, screenWidth) : Math.max(data.length * 50, screenWidth) }
+                  height={Platform.OS == 'web' ? 550: 350}
                   fromZero
+                  withInnerLines
                   showValuesOnTopOfBars
-                  chartConfig={chartConfig}
-                  style={styles.chart}
+                  chartConfig={{
+                    backgroundColor: LIGHTER_PRIMARY,
+                    backgroundGradientFrom: LIGHTER_PRIMARY2,
+                    backgroundGradientTo: SECONDARY_COLOR,
+                    decimalPlaces: 2,
+                    color: (opacity = 1) => DARKER_PRIMARY,
+                    labelColor: (opacity = 1) => DARKER_PRIMARY,
+
+                    propsForLabels: Platform.OS == 'web' ? {  
+                      fontSize: 30,
+                      translateY: 0,
+                      translateX: 30,
+                    }
+                    :
+                    {
+                      fontSize: 20,
+                      translateY: 0,
+                      translateX: 10,
+                    },
+
+                    paddingTop: 300,
+                    barPercentage: Platform.OS == 'web' ? 2 : 1,
+                  
+                  }}
+                  style={Platform.OS == 'web' ? styles.chartWeb : styles.chart}
                   yAxisSuffix=" mW"
                   yAxisLabel=""
+                  yLabelsOffset={Platform.OS == 'web' ? 30 : 50} // or -20 depending on your fontSize
+                  xLabelsOffset={Platform.OS == 'web' ? 20 : 10}
+                  segments={4}
+                  
+
                 />
               </View>
             </ScrollView>
-              
-
-           {/* <View style={styles.xAxisLabelContainer}>
-              <Text style={styles.xAxisLabel}>
-                {range === "day" ? "Hour" : "Date"}
-              </Text>
-            </View> */}
-
-        </View>
-
+          </View>
         ) : (
           <Text style={styles.noData}>No data to display</Text>
         )}
       </View>
-      
     </ScrollView>
   );
 }
@@ -181,14 +187,36 @@ const styles = StyleSheet.create({
     marginTop: 30,
     alignItems: "center",
     paddingHorizontal: 10,
+    // fontSize: 50
   },
   chartTitle: {
     fontSize: 20,
     fontWeight: "600",
     marginBottom: 16,
   },
+  chartTitleWeb: {
+    fontSize: 40,
+    fontWeight: "600",
+    marginBottom: 16,
+  },
   chart: {
-    borderRadius: 12
+    borderRadius: 12,
+    paddingRight: 150,
+    paddingTop: 50,
+    // fontSize: 50
+  },
+  chartWeb: {
+    borderRadius: 12,
+    paddingRight: 130,
+    paddingTop: 35,
+    // fontSize: 50
+  },
+  chartContainer: {
+    borderRadius: 12,
+    maxWidth: "95%",
+    height: 650,
+    // fontSize: 40
+    // paddingLeft: 100
   },
 
   noData: {
@@ -207,20 +235,27 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "#007AFF",
+    backgroundColor: LIGHTER_PRIMARY,
     marginHorizontal: 5,
     marginVertical: 4,
+    borderColor: PRIMARY_COLOR,
   },
   rangeButtonSelected: {
-    backgroundColor: "#007AFF",
+    backgroundColor: PRIMARY_COLOR,
+    borderColor: DARKER_PRIMARY,
   },
   rangeButtonText: {
-    color: "#007AFF",
+    color: DARKER_PRIMARY,
     fontSize: 14,
+  },
+  rangeButtonTextWeb: {
+    color: DARKER_PRIMARY,
+    fontSize: 35,
   },
   rangeButtonTextSelected: {
     color: "#ffffff",
   },
+
   yAxisLabel: {
     transform: [{ rotate: "-90deg" }],
     fontSize: 14,
@@ -235,4 +270,3 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
 });
-

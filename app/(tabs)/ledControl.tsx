@@ -79,7 +79,7 @@ const LedControl = () => {
 
 
   useEffect(() => {
-    console.log("Use effect called");
+    // console.log("Use effect called");
   if (selectedRoom === "bathroom") {
     progressRed.value = red;
     progressGreen.value = green;
@@ -92,7 +92,7 @@ const LedControl = () => {
     progressBrightness.value = brightnessBedroom;
   }
 
-      console.log(red, green, blue);
+      // console.log(red, green, blue);
 
   setForceUpdateRed((prev) => prev + 1);
   setForceUpdateGreen((prev) => prev + 1);
@@ -102,7 +102,7 @@ const LedControl = () => {
     : setForceUpdateBrightnessBedroom((prev) => prev + 1);
 
 
-        console.log(red, green, blue);
+        // console.log(red, green, blue);
 
 }, [selectedRoom, red, green, blue, brightness, redBedroom, greenBedroom, blueBedroom, brightnessBedroom]);
 
@@ -130,8 +130,8 @@ const LedControl = () => {
   const rerender = () => {
     console.log("Rerender called");
 
-    console.log("Living: ", red,green,blue);
-    console.log("Bedroom: ", redBedroom,greenBedroom,blueBedroom);
+    // console.log("Living: ", red,green,blue);
+    // console.log("Bedroom: ", redBedroom,greenBedroom,blueBedroom);
 
     if(Platform.OS === 'web'){
       setForceUpdateRed((prev) => prev + 1);
@@ -149,18 +149,18 @@ const LedControl = () => {
           style={[
             Platform.OS=='web' ? styles.buttonWeb : styles.button,
              selectedRoom == "bathroom" ? 
-             (red || blue || green) ?  styles.onButton : styles.offButton 
-             : (redBedroom || blueBedroom || greenBedroom) ? styles.onButton : styles.offButton ,
+             (brightness > 1 && (red || blue || green)) ?  styles.onButton : styles.offButton 
+             : (brightnessBedroom > 1 && (redBedroom || blueBedroom || greenBedroom)) ? styles.onButton : styles.offButton ,
           ]}
           onPress={() => turnOnOFF(selectedRoom == "bathroom" ? 
-            (red || blue || green ? 1 : 255) 
-            : (redBedroom || blueBedroom || greenBedroom ? 1 : 255))}
+            (brightness > 1 &&  (red || blue || green)) ? 1 : 255
+            : (brightnessBedroom > 1 && (redBedroom || blueBedroom || greenBedroom)) ? 1 : 255)}
         >
       <Text style={Platform.OS=='web' ? styles.buttonTextWeb : styles.buttonText}>
             { 
              selectedRoom == "bathroom" ? 
-             (red || blue || green) ? "Turn OFF" : "Turn ON" 
-             : (redBedroom || blueBedroom || greenBedroom) ? "Turn OFF" : "Turn ON"  }
+             (brightness > 1 &&  (red || blue || green)) ? "Turn OFF" : "Turn ON" 
+             : (brightnessBedroom > 1 &&  (redBedroom || blueBedroom || greenBedroom)) ? "Turn OFF" : "Turn ON"  }
           </Text>
         </TouchableOpacity>
       </View>
