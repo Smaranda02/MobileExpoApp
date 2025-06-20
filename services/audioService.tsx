@@ -312,7 +312,7 @@
 import { useEffect, useState } from 'react';
 import { Alert } from 'react-native';
 import * as FileSystem from 'expo-file-system';
-import { SERVER_IP } from '@/constants';
+import { SERVER_IP, SERVER_IP_AUDIO } from '@/constants';
 
 import {
   useAudioRecorder,
@@ -329,7 +329,7 @@ export interface SpeechCommands {
   color?: string;
 }
 
-const SERVER_URL = `http://${SERVER_IP}:8000/transcribe`; // foisorului wifi
+const SERVER_URL = `http://${SERVER_IP_AUDIO}:8000/transcribe`; // foisorului wifi
 
 export function useAudioService() {
   const recorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);

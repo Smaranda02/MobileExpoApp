@@ -164,7 +164,7 @@ export default function ConsumptionChart({ device }: ConsumptionChartProps) {
                       //  || range == "day"
                                   ? labels
                                   : range == "day" ? labels.filter((_, index) => index % 2 === 0) 
-                                  : labels.filter((_, index) => index % 5 === 0), 
+                                  : labels.filter((_, index) => index % 3 === 0), 
                 datasets: [{ data }],
               }}
               width={Math.max(data.length * 40, screenWidth)}
@@ -179,7 +179,7 @@ export default function ConsumptionChart({ device }: ConsumptionChartProps) {
                 propsForLabels: {
                   fontSize: 30,
                   translateY: 10,
-                  translateX: 10,
+                  translateX: 40,
                 },
                 paddingTop: 300,
               }}

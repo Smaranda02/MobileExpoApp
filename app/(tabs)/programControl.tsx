@@ -26,7 +26,7 @@ const ProgramControl = () => {
       hour: "2-digit",
       minute: "2-digit",
     });
-    // console.log("Time: ", formatted);
+    console.log("Time: ", formatted);
     // formatted = "12:05";
     setSunriseStr(formatted);
   }, [sunriseTime]);

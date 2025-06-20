@@ -9,6 +9,8 @@ export const BACKGROUND_COLOR = "#a9d6e5";
 // export const SERVER_IP = "192.168.1.101";
 // export const SERVER_IP = "192.168.27.206";
 export const SERVER_IP = "192.168.1.104"; //robotics314
+export const SERVER_IP_AUDIO = "192.168.1.101"; //laptop ip
+
 
 export const LAT = 44.4268;  // Bucharest latitude
 export const LNG = 26.1025;  // Bucharest longitude
@@ -27,10 +29,10 @@ export const GAS_THRESHOLD = 300; // Adjust based on environment
 
 
 // export const MQTT_SERVER = "ws://192.168.191.78:8080/mqtt"; //smara
-// export const MQTT_SERVER = "ws://192.168.1.104:8080/mqtt"; //robotics314
+export const MQTT_SERVER = "ws://192.168.1.104:8080/mqtt"; //robotics314
 // export const MQTT_SERVER = "ws://172.20.10.3:8080/mqtt"; //cori
 // const MQTT_SERVER = "ws://192.168.2.100:8080/mqtt" // VPN
-export const MQTT_SERVER = "ws://192.168.1.110:8080/mqtt"; //  MQTT broker foisor
+// export const MQTT_SERVER = "ws://192.168.1.110:8080/mqtt"; //  MQTT broker foisor
 
 // const MQTT_SERVER = Platform.OS === 'web' ? "wss://192.168.1.110:8082/mqtt" : "ws://192.168.1.110:8080/mqtt"; //  MQTT broker foisor
 
