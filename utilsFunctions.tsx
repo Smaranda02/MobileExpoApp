@@ -3,6 +3,7 @@ import { LAT, LNG, TIMEZONE } from "./constants";
 
 import { MQTTPublisher } from "./services/mqttPublisher";
 import { useLedStore } from "./stores/useLedStore";
+;
 
 export async function getSunriseTime(): Promise<Date> {
   const res = await fetch(`https://api.sunrise-sunset.org/json?lat=${LAT}&lng=${LNG}&formatted=0`);
@@ -74,7 +75,7 @@ export function triggerSunriseEvent(automaticControl: boolean) {
                 green: 0,
                 blue: 0,
                 brightness: 0,
-                selectedRoom: 'living'
+                selectedRoom: 'bathroom'
               });
               
       MQTTPublisher.publishLedColor({

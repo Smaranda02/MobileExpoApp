@@ -164,9 +164,6 @@ export default function FirstPage() {
           <Link href="/temperature" style={Platform.OS =="web" ? styles.linkWeb : styles.link}>
             Temperature Control
           </Link>
-          <Link href="/socket" style={Platform.OS =="web" ? styles.linkWeb : styles.link}>
-            Smart Socket Control
-          </Link>
           <Link href="/airQuality" style={Platform.OS =="web" ? styles.linkWeb : styles.link}>
             Air Quality
           </Link>
@@ -248,7 +245,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "center",
     paddingBottom: 20,
-    marginTop: 30,
+    marginTop: 60,
   },
   titleWeb: {
     fontSize: 50,

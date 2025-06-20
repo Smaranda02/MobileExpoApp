@@ -15,9 +15,11 @@ type LedState = {
   selectedRoom: Room;
   automaticControl: boolean;
   sunriseTime: Date | null;
+  lightsOffAtSunrise: boolean;
   setColor: (r: number, g: number, b: number, brightness: number) => void;
   setRoom: (room: Room) => void;
   setAutomaticControl: (isAutomated: boolean) => void;
+  setLightsOffAtSunrise: (value: boolean) => void;
   fetchSunriseTime: () => Promise<void>;
   updateColorsFromMCU: (r: number, g: number, b: number, brightness: number, room: string) => void;
 };
@@ -35,6 +37,7 @@ export const useLedStore = create<LedState>((set, get) => ({
   automaticControl: false,
   selectedRoom: 'bathroom',
   sunriseTime: null,
+  lightsOffAtSunrise: false,
 
   setColor: (r, g, b, brightness) => {
     
@@ -82,6 +85,9 @@ export const useLedStore = create<LedState>((set, get) => ({
   
   setRoom: (room: Room) => set({ selectedRoom: room }),
 
+  setLightsOffAtSunrise: (value: boolean) => set({ lightsOffAtSunrise: value }),
+
+
   setAutomaticControl: (isAutomated: boolean) => {
     set({ automaticControl: isAutomated });
 
@@ -95,13 +101,19 @@ export const useLedStore = create<LedState>((set, get) => ({
       // console.log((delay / 1000) - 35900) ;
       // delay = delay - 35900000;
       // console.log(delay) ;
-      delay = 3000;
+      // delay = 10000;
 
-      if (automaticControl) {
-        setTimeout(() => triggerSunriseEvent(automaticControl), delay);
+      if (automaticControl && get().lightsOffAtSunrise == false) {
+        setInterval(() => 
+          {
+          triggerSunriseEvent(automaticControl);
+          set({ red: 0, green: 0, blue: 0, brightness: 1});
+          set({ redBedroom: 0, greenBedroom: 0, blueBedroom: 0, brightnessBedroom: 1 });
+          set({lightsOffAtSunrise : true});
+          }, delay);
       }
 
-      console.log("DA : ", automaticControl);
+      // console.log("DA : ", automaticControl);
     });
   },
 

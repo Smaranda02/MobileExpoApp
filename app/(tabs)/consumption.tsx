@@ -45,19 +45,14 @@ const Consumption = () => {
   let lastHourReadESP1 = Date.now();
   let lastHourReadESP2 = Date.now();
 
+  const [refreshKey, setRefreshKey] = useState(0);
+
+
   const mqttClient = useRef<MQTTClientSingleton | null>(null);
 
-  const sendToBackend = async (device: string, current: number) => {
-    try {
-      await fetch(`http://${SERVER_IP}:3000/reading`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ device, current }),
-      });
-    } catch (error) {
-      console.error("Failed to send reading to backend:", error);
-    }
-  };
+  useEffect(() => {
+  // Your data loading or side effect here
+}, [refreshKey]);
 
   const postHourAverage = async (power: number, date: string, time: number) => {
     try {
@@ -67,6 +62,7 @@ const Consumption = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ power, timestamp, time })
       });
+    
     } catch (error) {
       console.error('Failed to send reading to backend:', error);
     }
@@ -86,6 +82,8 @@ const Consumption = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ device, current, readingDate, time }),
       });
+
+      // setRefreshKey(prev => prev + 1);
     } catch (error) {
       console.error("Failed to send reading to backend:", error);
     }
@@ -97,8 +95,8 @@ const Consumption = () => {
     console.log("array: ", powerHourArray);
     const now = Date.now();
     const oneHour = 60 * 60 * 1000;
-    // if (now - lastHourRead >= oneHour) {
-    if (now - lastHourReadSolarPanel >= 60 * 1000) {
+    if (now - lastHourReadSolarPanel >= oneHour) {
+    // if (now - lastHourReadSolarPanel >= 60 * 1000) {
       const sum = powerHourArray.current.reduce((acc, val) => acc + val, 0);
       const averagePower = Math.round((sum / powerHourArray.current.length) * 100) / 100;
       const currentHour = new Date().getHours(); // 0-23
@@ -111,16 +109,17 @@ const Consumption = () => {
   };
 
   const handleESPCurrent = async (current: number, device: string) => {
+
     currentHourArrayESP1.current.push(current);
     console.log("received power: ", current);
-    console.log("array: ", currentHourArrayESP1);
+    console.log("array length: ", currentHourArrayESP1.current.length);
 
     const now = Date.now();
     const oneHour = 60 * 60 * 1000;
     const oneMinute = 60 * 1000;
 
-    // if (now - lastHourRead >= oneHour) {
-    if (now - lastHourReadESP1 >= oneMinute) {
+    if (now - lastHourReadESP1 >= oneHour) {
+    // if (now - lastHourReadESP1 >= oneMinute) {
       const sum = currentHourArrayESP1.current.reduce(
         (acc, val) => acc + val,
         0
@@ -129,6 +128,7 @@ const Consumption = () => {
         Math.round((sum / currentHourArrayESP1.current.length) * 100) / 100;
 
       const currentHour = new Date().getHours(); // 0-23
+      console.log("ora ", currentHour);
       const timestamp = new Date().toISOString(); // Full ISO timestamp
       postHourAverageMCU(device, averageCurrent, timestamp, currentHour);
 
@@ -199,9 +199,8 @@ const Consumption = () => {
       //received each minute
 
       if (
-        selectedESPRef.current === "ESP1" ||
-        selectedESPRef.current === "ESP2"
-      ) {
+        selectedESPRef.current === "ESP1" || selectedESPRef.current === "ESP2") 
+      {
         let avg_current = 0;
         let min_current = 0;
 
@@ -217,9 +216,20 @@ const Consumption = () => {
         } catch (error) {
           console.error("Failed to fetch minimum current:", error);
         }
+        
+        // console.log("Min current : ", min_current);
 
         try {
-          if (
+          if(min_current == null){
+
+            setCurrentShuntVoltage(parseFloat(data.shuntVoltage));
+            setCurrentBusVoltage(parseFloat(data.busVoltage));
+            setCurrentCurrent(parseFloat(data.current));
+            setCurrentPower(parseFloat(data.power));
+            setCurrentLoadVoltage(parseFloat(data.loadVoltage));
+          }
+          
+          else if (
             min_current != null &&
             current < min_current + VALUES_ERROR_MARGIN
           ) {
@@ -247,7 +257,7 @@ const Consumption = () => {
         setCurrentPower(parseFloat(data.power));
         setCurrentLoadVoltage(parseFloat(data.loadVoltage));
         const power = parseFloat(data.power);
-        // handleSolarPanelPower(power);
+        handleSolarPanelPower(power);
       }
     };
 

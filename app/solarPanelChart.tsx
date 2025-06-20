@@ -56,23 +56,34 @@ export default function SolarPanelChart() {
       const solar_panel_url = `http://${SERVER_IP}:3000/consumptionSolarPanel?range=${range}`;
       const response = await fetch(solar_panel_url);
       const json = await response.json();
+      
+      console.log("JSON: ", json);
+      const timestamps = json.map((d: any) => d.timestamp);
+      console.log(timestamps)
+      const firstHour = Math.min(...timestamps);
+      console.log("First hour : ", firstHour)
 
-      // console.log(json);
-      // const values = json.map((d: any) => d.power);
-      const values = [0,0, 0,0,0,0, 1.5, 2.5, 2.7, 3, 4.5, 5.7, 6.8, 8.3, 11.5, 10.3, 8.1, 6.5, 5.3, 3, 0, 0, 0]
+      const values = json.map((d: any) => d.power);
+      // const values = [0,0, 0,0,0,0, 1.5, 2.5, 2.7, 3, 4.5, 5.7, 6.8, 8.3, 11.5, 10.3, 8.1, 6.5, 5.3, 3, 0, 0, 0]
 
-      const xLabels = json.map((d: any, index: number) => {
         if (range === "day") {
-          const hour = String(index).padStart(2, "0");
-          return `${hour}:00 `;
-        } else {
-          return format(parseISO(d.readingDate), "MMM d"); // "May 14"
-        }
-      });
+        const xLabels = Array.from({ length: firstHour + 1 }, (_, i) => `${String(i).padStart(2, "0")}:00`);
+        const paddedValues = [
+            ...Array(firstHour).fill(0), // pad with zeros at the front
+            ...values,
+          ];
 
-      console.log("Labels: ", xLabels);
-      setData(values);
-      setLabels(xLabels);
+        console.log(paddedValues)
+      
+        setData(paddedValues);
+        setLabels(xLabels);
+      } 
+      else {
+              const xLabels = json.map((d: any, index: number) =>   format(parseISO(d.readingDate), "MMM d")); // "May 14"
+              setData(values);
+              setLabels(xLabels);
+            }
+
     } catch (error) {
       console.error("Failed to load data", error);
     }
@@ -128,12 +139,13 @@ export default function SolarPanelChart() {
                 <BarChart
                   data={{
                     labels:
-                      range === "day"
-                        ? labels.filter((_, index) => index % 3 === 0)
+                        range === "day" || range === "week" ?  labels
+                        // ? labels.filter((_, index) => index % 3 === 0)
                         : labels.filter((_, index) => index % 5 === 0),
                     datasets: [{ data }],
                   }}
-                  width={Platform.OS == 'web' ? Math.min(data.length * 100, screenWidth) : Math.max(data.length * 50, screenWidth) }
+
+                  width={Platform.OS == 'web' ? Math.max(data.length * 100, screenWidth) : Math.max(data.length * 50, screenWidth) }
                   height={Platform.OS == 'web' ? 550: 350}
                   fromZero
                   withInnerLines

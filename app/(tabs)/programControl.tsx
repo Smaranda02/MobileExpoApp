@@ -16,7 +16,7 @@ import { BACKGROUND_COLOR, DARKER_PRIMARY, LIGHTER_PRIMARY, LIGHTER_PRIMARY2, PR
 
 const ProgramControl = () => {
   const { curtainsState, setCurtainsState } = useCurtainsStore();
-  const { sunriseTime, automaticControl, setAutomaticControl } = useLedStore();
+  const { sunriseTime, automaticControl, lightsOffAtSunrise, setAutomaticControl, setLightsOffAtSunrise } = useLedStore();
   const [sunriseStr, setSunriseStr] = useState("");
 
   useEffect(() => {
@@ -26,8 +26,19 @@ const ProgramControl = () => {
       hour: "2-digit",
       minute: "2-digit",
     });
+    // console.log("Time: ", formatted);
+    // formatted = "12:05";
     setSunriseStr(formatted);
   }, [sunriseTime]);
+
+  useEffect(() => {
+    if (lightsOffAtSunrise) {
+      const timer = setTimeout(() => {
+        setLightsOffAtSunrise(false);
+      }, 10000);
+      return () => clearTimeout(timer); // Clean up the timer if the component unmounts
+    }
+  }, [lightsOffAtSunrise]);
 
   const handleCurtainsStatePublish = (curtainsCommand: number) => {
     setCurtainsState(curtainsCommand);
@@ -85,7 +96,7 @@ const ProgramControl = () => {
               <Picker.Item label="YES" value="true" />
             </Picker>
 
-            {automaticControl && (
+            {automaticControl && !lightsOffAtSunrise && (
               <Text
                 style={
                   Platform.OS != "web"
@@ -102,9 +113,23 @@ const ProgramControl = () => {
                   }
                 >
                   {sunriseStr || "Loading..."}
+                  {/* { ` 10 seconds`} */}
                 </Text>
               </Text>
             )}
+
+            {lightsOffAtSunrise && 
+            (
+              <Text  style={
+                  Platform.OS != "web"
+                    ? styles.sunriseText
+                    : styles.sunriseTextWeb
+                }>
+                {`Lights have been turned off 💤`}
+              </Text>
+            )
+            }
+            
           </View>
         </View>
       </View>

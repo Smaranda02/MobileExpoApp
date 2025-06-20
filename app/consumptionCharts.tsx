@@ -68,25 +68,38 @@ export default function ConsumptionChart({ device }: ConsumptionChartProps) {
       const json = await response.json();
 
       console.log("JSON: ", json);
+      const timestamps = json.map((d: any) => d.timestamp);
+      console.log(timestamps)
+      const firstHour = Math.min(...timestamps);
+      console.log("First hour : ", firstHour)
 
       const values = json.map(
         (d: any) => (d.current * ESP_VOLTAGE) / 1000
       );
 
+      // console.log("values: ",values);
 
-      const xLabels = json.map((d: any, index: number) => {
-            if (range === "day") {
-              const hour = String(index).padStart(2, '0');
-              return `${hour}:00 `;
-            } else {
-              return format(parseISO(d.readingDate), "MMM d"); // "May 14"
-            }
-      });
+      if (range === "day") {
+        const xLabels = Array.from({ length: firstHour + 1 }, (_, i) => `${String(i).padStart(2, "0")}:00`);
+        const paddedValues = [
+            ...Array(firstHour).fill(0), // pad with zeros at the front
+            ...values,
+          ];
 
+          console.log(paddedValues)
+
+        // const finalValues = paddedValues.slice(0, 24);
       
-
-      setData(values);
-      setLabels(xLabels);
+        setData(paddedValues);
+        setLabels(xLabels);
+      } 
+      else {
+        const xLabels = json.map((d: any, index: number) =>   format(parseISO(d.readingDate), "MMM d")); // "May 14"
+        setData(values);
+        setLabels(xLabels);
+      }
+      // setData(values);
+      // setLabels(xLabels);
     } catch (error) {
       console.error("Failed to load data", error);
     }
@@ -134,20 +147,23 @@ export default function ConsumptionChart({ device }: ConsumptionChartProps) {
         <ActivityIndicator size="large" />
       ) : data.length > 0 ? (
         <View style={styles.chartContainer}>
+          <View style={styles.containerText}>
           {selectedPoint && selectedPoint.label && (
             <Text style={styles.selectedPointText}>
               Selected: {selectedPoint.label} — {selectedPoint.value.toFixed(2)}{" "}
               W
             </Text>
            )} 
+           </View>
 
           {/* <Text style={styles.yAxisLabel}>Power (W)</Text> */}
           <ScrollView horizontal>
             <LineChart
               data={{
                 labels: range == "week" 
+                      //  || range == "day"
                                   ? labels
-                                  : range == "day" ? labels.filter((_, index) => index % 3 === 0) 
+                                  : range == "day" ? labels.filter((_, index) => index % 2 === 0) 
                                   : labels.filter((_, index) => index % 5 === 0), 
                 datasets: [{ data }],
               }}
@@ -163,7 +179,7 @@ export default function ConsumptionChart({ device }: ConsumptionChartProps) {
                 propsForLabels: {
                   fontSize: 30,
                   translateY: 10,
-                  translateX: 30,
+                  translateX: 10,
                 },
                 paddingTop: 300,
               }}
@@ -208,9 +224,15 @@ const styles = StyleSheet.create({
   chartContainer: {
     borderRadius: 12,
     maxWidth: "95%",
-    height: 650,
+    height: 750,
     // paddingLeft: 100
   },
+  containerText:{
+    marginTop: 20,
+    fontSize: 30,
+    alignItems:"center"
+  },
+
   chart: {
     // marginLeft:100
     paddingRight: 150,
@@ -271,9 +293,11 @@ const styles = StyleSheet.create({
   },
 
   selectedPointText: {
-    fontSize: 20,
+    marginTop: 50,
+    fontSize: 30,
     fontWeight: "bold",
     color: DARKER_PRIMARY,
+    justifyContent: "center"
     // marginBottom: 10,
   },
 });
