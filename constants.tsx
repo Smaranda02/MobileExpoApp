@@ -6,9 +6,9 @@ export const DARKER_PRIMARY = "#012a4a";
 export const BACKGROUND_COLOR = "#a9d6e5"; 
 
 
-export const SERVER_IP = "192.168.1.101";
+// export const SERVER_IP = "192.168.1.101";
 // export const SERVER_IP = "192.168.27.206";
-// export const SERVER_IP = "192.168.1.100"; //robotics314
+export const SERVER_IP = "192.168.1.104"; //robotics314
 
 export const LAT = 44.4268;  // Bucharest latitude
 export const LNG = 26.1025;  // Bucharest longitude
